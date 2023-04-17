@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Fluminense - Calendar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="./fullcalendar.min.css" rel="stylesheet" />
     <link href="./fullcalendar.print.min.css" rel="stylesheet" media="print" />
     <script src="./lib/moment.min.js"></script>
@@ -72,8 +73,20 @@
         color: white;
       }
 
+      .fc-center h2 {
+        background-color: white;
+        color: black;
+        padding: 14px;
+        border-radius: 7px;
+      }
+
       .fc-content {
         padding: 5px;
+      }
+
+      .fc button {
+        width: 6em;
+        height: 4em;
       }
 
       .fc-unthemed .fc-content,
@@ -122,6 +135,7 @@
         height: 100%;
         background-image: url(wallpaper-flu.jpg);
         background-size: cover;
+        background-position: center;
         top: 0;
         left: 0;
         z-index: 1;

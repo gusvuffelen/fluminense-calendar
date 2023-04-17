@@ -93,7 +93,7 @@ $(document).ready(async function () {
     header: {
       left: 'prev,next today',
       center: 'title',
-      right: 'month'
+      right: ''
     },
     navLinks: true,
     editable: false,
@@ -102,6 +102,27 @@ $(document).ready(async function () {
     contentHeight: 500,
     /** */
     ignoreTimezone: false,
+    timeFormat: 'H:mm[h]',
+    dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
+    buttonText: {
+      prev: ' < ',
+      next: ' > ',
+      prevYear: '&nbsp;&lt;&lt;&nbsp;',
+      nextYear: '&nbsp;&gt;&gt;&nbsp;',
+      today: 'Hoje',
+      month: 'Mês',
+      week: 'Semana',
+      day: 'Dia'
+    },
+    dayNames: [
+      'Domingo',
+      'Segunda',
+      'Terça',
+      'Quarta',
+      'Quinta',
+      'Sexta',
+      'Sabado'
+    ],
     monthNames: [
       'Janeiro',
       'Fevereiro',
@@ -129,42 +150,7 @@ $(document).ready(async function () {
       'Out',
       'Nov',
       'Dez'
-    ],
-    dayNames: [
-      'Domingo',
-      'Segunda',
-      'Terça',
-      'Quarta',
-      'Quinta',
-      'Sexta',
-      'Sabado'
-    ],
-    dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
-    /*titleFormat: {
-      month: 'MMMM yyyy',
-      week: 'd[ MMMM][ yyyy]{ - d MMMM yyyy}',
-      day: 'dddd, d MMMM yyyy'
-    },
-    columnFormat: {
-      month: 'ddd',
-      week: 'ddd d',
-      day: ''
-    },
-    axisFormat: 'H:mm',
-    timeFormat: {
-      '': 'H:mm',
-      agenda: 'H:mm{ - H:mm}'
-    },*/
-    buttonText: {
-      prev: ' < ',
-      next: ' > ',
-      prevYear: '&nbsp;&lt;&lt;&nbsp;',
-      nextYear: '&nbsp;&gt;&gt;&nbsp;',
-      today: 'Hoje',
-      month: 'Mês',
-      week: 'Semana',
-      day: 'Dia'
-    }
+    ]
   });
   const url_feed = URIHash.get('feed');
   const url_file = URIHash.get('file');
@@ -207,10 +193,68 @@ $(document).ready(async function () {
     fetch_ics_feed(url, corsAnywhereOn, true);
   });
 
-  await fetch_ics_feed('2018.ics');
-  await fetch_ics_feed('2019-2020.ics');
-  await fetch_ics_feed('2020-2021.ics');
-  await fetch_ics_feed('2021.ics');
-  await fetch_ics_feed('2022.ics');
-  await fetch_ics_feed('2023.ics');
+  load_files([
+    '2023.ics',
+    '2022.ics',
+    '2021.ics',
+    '2020-2021.ics',
+    '2019-2020.ics',
+    '2018.ics'
+  ]);
 });
+
+async function load_files(files) {
+  let allEvents = [];
+
+  for (let file of files) {
+    await new Promise(async resolve => {
+      $.get(file, res => {
+        res = res.replace(/\{circle-green\}/g, '🟢');
+        res = res.replace(/\{circle-red\}/g, '🔴');
+        res = res.replace(/\{circle-grey\}/g, '🔘');
+
+        const parsed = ICAL.parse(res);
+        const events = parsed[2].map(([type, event_fields]) => {
+          if (type !== 'vevent') return;
+          return event_fields.reduce((event, field) => {
+            const [original_key, _, type, original_value] = field;
+            const key =
+              original_key in mapping ? mapping[original_key] : original_key;
+            const value =
+              type in value_type_mapping
+                ? value_type_mapping[type](original_value)
+                : original_value;
+            event[key] = value;
+            return event;
+          }, {});
+        });
+        allEvents = [...allEvents, ...events];
+
+        resolve();
+      });
+    });
+  }
+
+  console.log(allEvents);
+
+  /*const parsed = ICAL.parse(ics_data);
+  console.log(parsed);
+  const events = parsed[2].map(([type, event_fields]) => {
+    if (type !== 'vevent') return;
+    return event_fields.reduce((event, field) => {
+      const [original_key, _, type, original_value] = field;
+      const key =
+        original_key in mapping ? mapping[original_key] : original_key;
+      const value =
+        type in value_type_mapping
+          ? value_type_mapping[type](original_value)
+          : original_value;
+      event[key] = value;
+      return event;
+    }, {});
+  });
+  */
+
+  $('#calendar').fullCalendar('removeEventSources');
+  $('#calendar').fullCalendar('addEventSource', allEvents);
+}
