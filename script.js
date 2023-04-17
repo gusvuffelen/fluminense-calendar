@@ -142,10 +142,10 @@ $(document).ready(async function () {
     fetch_ics_feed(url, corsAnywhereOn, true);
   });
 
-  await fetch_ics_feed('/2018.ics');
-  await fetch_ics_feed('/2019-2020.ics');
-  await fetch_ics_feed('/2020-2021.ics');
-  await fetch_ics_feed('/2021.ics');
-  await fetch_ics_feed('/2022.ics');
-  await fetch_ics_feed('/2023.ics');
+  await fetch_ics_feed('2018.ics');
+  await fetch_ics_feed('2019-2020.ics');
+  await fetch_ics_feed('2020-2021.ics');
+  await fetch_ics_feed('2021.ics');
+  await fetch_ics_feed('2022.ics');
+  await fetch_ics_feed('2023.ics');
 });
