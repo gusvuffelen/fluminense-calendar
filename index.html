@@ -24,6 +24,7 @@
       h1 {
         color: white;
         padding-left: 90px;
+        text-shadow: 2px 2px 3px black;
       }
 
       #calendar,
@@ -96,6 +97,7 @@
       .fc button {
         width: 6em;
         height: 4em;
+        touch-action: manipulation;
       }
 
       .fc-unthemed .fc-content,
@@ -135,6 +137,14 @@
         padding: 4px;
       }
 
+      .container {
+        padding-top: 20px;
+      }
+
+      .toggle-legend {
+        display: none;
+      }
+
       @media only screen and (max-width: 800px) {
         #calendar,
         .legend,
@@ -145,7 +155,22 @@
           margin: 0 auto;
         }
 
+        .container {
+          padding: 0;
+        }
+
+        .legend,
+        .container > h1,
+        .container > h1 + br {
+          display: none;
+        }
+
+        .toggle-legend {
+          display: block;
+        }
+
         .fc button {
+          width: 3.5em;
           height: 2.5em;
         }
 
@@ -170,6 +195,7 @@
       "
     ></div>
     <div
+      class="container"
       style="
         position: absolute;
         width: 100%;
@@ -177,7 +203,6 @@
         top: 0;
         left: 0;
         z-index: 2;
-        padding-top: 20px;
       "
     >
       <h1>
@@ -191,8 +216,16 @@
       <br />
       <div id="calendar"></div>
       <br />
-      <div class="legend">
+      <a
+        class="toggle-legend"
+        href="javascript:void(0)"
+        style="margin-left: 10px; color: white"
+        onclick="toggleLegends()"
+        >Legendas</a
+      >
+      <div class="legend" onclick="toggleLegends()">
         <table
+          align="center"
           style="
             background-color: rgba(255, 255, 255, 0.9);
             border-radius: 7px;

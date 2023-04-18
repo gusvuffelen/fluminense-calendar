@@ -94,11 +94,11 @@ $(document).ready(async function () {
     editable: false,
     minTime: '7:30:00',
     maxTime: '21:30:00',
-    contentHeight: 500,
+    contentHeight: 550,
     header: {
       left: 'prev,next today',
       center: 'title',
-      right: ''
+      right: 'month'
     },
     eventClick: function (event) {
       const url = event.description?.match(/(https[^"]+)/);
@@ -242,6 +242,36 @@ function replaceCircles(text) {
   return text;
 }
 
+function toggleLegends() {
+  if (document.body.clientWidth < 800) {
+    const legends = document.querySelector('.legend');
+
+    if (legends.style.display === 'block') {
+      legends.style.removeProperty('display');
+      legends.style.removeProperty('position');
+      legends.style.removeProperty('top');
+      legends.style.removeProperty('left');
+      legends.style.removeProperty('background-color');
+      legends.style.removeProperty('max-width');
+      legends.style.removeProperty('width');
+      legends.style.removeProperty('height');
+      legends.style.removeProperty('padding-top');
+      legends.style.removeProperty('z-index');
+    } else {
+      legends.style.display = 'block';
+      legends.style.position = 'absolute';
+      legends.style.top = '0';
+      legends.style.left = '0';
+      legends.style.backgroundColor = 'rgba(0,0,0,0.7)';
+      legends.style.maxWidth = '100%';
+      legends.style.width = '100%';
+      legends.style.height = '100%';
+      legends.style.paddingTop = '80px';
+      legends.style.zIndex = '4';
+    }
+  }
+}
+
 async function load_files(files) {
   let allEvents = [];
 
@@ -269,6 +299,12 @@ async function load_files(files) {
 
         resolve();
       });
+    });
+  }
+
+  if (document.body.clientWidth < 800) {
+    allEvents.forEach(event => {
+      event.title = event.title.replace(' vs ', '<br>');
     });
   }
 
