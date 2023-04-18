@@ -13,6 +13,7 @@
     <script src="./ical.min.js"></script>
     <script src="./urlhash.js"></script>
     <script src="./script.js"></script>
+    <script src="./plotly-2.20.0.min.js"></script>
     <style>
       body {
         margin: 40px 10px;
@@ -141,8 +142,14 @@
         padding-top: 20px;
       }
 
-      .toggle-legend {
+      .toggle-legend,
+      #members {
         display: none;
+      }
+
+      .user-select-none.svg-container {
+        margin-left: auto !important;
+        margin-right: auto !important;
       }
 
       @media only screen and (max-width: 800px) {
@@ -199,7 +206,7 @@
       style="
         position: absolute;
         width: 100%;
-        height: 100%;
+        height: calc(100% - 20px);
         top: 0;
         left: 0;
         z-index: 2;
@@ -264,6 +271,14 @@
           </tr>
         </table>
       </div>
+      <a
+        class="toggle-members"
+        href="javascript:void(0)"
+        style="margin-left: 10px; color: white"
+        onclick="toggleMembers()"
+        >Sócios</a
+      >
+      <div id="members" onclick="toggleMembers()"></div>
       <span style="display: none">
         <header>
           <p class="line">

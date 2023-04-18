@@ -84,9 +84,65 @@ function fetch_ics_feed(url, cors, show_share) {
     }
   });
 }
+
+function getDate() {
+  return new Date(
+    new Date().setHours(
+      new Date().getHours() - new Date().getTimezoneOffset() / 60,
+      new Date().getMinutes(),
+      new Date().getSeconds(),
+      0
+    )
+  )
+    .toISOString()
+    .replace(
+      /([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).*/,
+      '$1-$2-$3 $4:$5:$6'
+    );
+}
+
 $(document).ready(async function () {
   $.get('teams.json', res => {
     // console.log(res);
+  });
+
+  $.get('https://api.sociofutebol.com.br/public/counter', res => {
+    const members = JSON.parse(localStorage.getItem('members') || '[]');
+
+    members.push({
+      date: getDate(),
+      total: res.res
+    });
+
+    localStorage.setItem('members', JSON.stringify(members));
+
+    var data = [
+      {
+        x: members.map(m => m.date),
+        y: members.map(m => m.total),
+        type: 'scatter'
+      }
+    ];
+
+    Plotly.newPlot(
+      'members',
+      data,
+      {
+        width: document.body.clientWidth - 50,
+        height: document.body.clientHeight / 3,
+        margin: {
+          l: 80,
+          r: 20,
+          b: 50,
+          t: 50,
+          pad: 4
+        }
+      },
+      { displayModeBar: true }
+    );
+    document.querySelector('#members').firstChild.onclick = e => {
+      e.stopPropagation();
+    };
   });
 
   $('#calendar').fullCalendar({
@@ -269,6 +325,34 @@ function toggleLegends() {
       legends.style.paddingTop = '80px';
       legends.style.zIndex = '4';
     }
+  }
+}
+
+function toggleMembers() {
+  const members = document.querySelector('#members');
+
+  if (members.style.display === 'block') {
+    members.style.removeProperty('display');
+    members.style.removeProperty('position');
+    members.style.removeProperty('top');
+    members.style.removeProperty('left');
+    members.style.removeProperty('background-color');
+    members.style.removeProperty('max-width');
+    members.style.removeProperty('width');
+    members.style.removeProperty('height');
+    members.style.removeProperty('padding-top');
+    members.style.removeProperty('z-index');
+  } else {
+    members.style.display = 'block';
+    members.style.position = 'absolute';
+    members.style.top = '0';
+    members.style.left = '0';
+    members.style.backgroundColor = 'rgba(0,0,0,0.7)';
+    members.style.maxWidth = '100%';
+    members.style.width = '100%';
+    members.style.height = '100%';
+    members.style.paddingTop = '80px';
+    members.style.zIndex = '4';
   }
 }
 
