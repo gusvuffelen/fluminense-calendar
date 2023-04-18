@@ -85,6 +85,14 @@
         padding: 5px;
       }
 
+      .fc-day-grid-event .fc-content {
+        cursor: pointer;
+      }
+
+      .fc-content > .fc-time {
+        display: block;
+      }
+
       .fc button {
         width: 6em;
         height: 4em;
@@ -125,6 +133,25 @@
         font-weight: bold;
         border-radius: 50%;
         padding: 4px;
+      }
+
+      @media only screen and (max-width: 800px) {
+        #calendar,
+        .legend,
+        header,
+        h1,
+        footer {
+          max-width: calc(100% - 10px);
+          margin: 0 auto;
+        }
+
+        .fc button {
+          height: 2.5em;
+        }
+
+        .fc-center h2 {
+          padding: 7px;
+        }
       }
     </style>
   </head>

@@ -66,9 +66,7 @@ function openFile(event) {
 function load_ics_from_base64(input) {
   let contents = atob(input);
 
-  contents = contents.replace(/\{circle-green\}/g, '🟢');
-  contents = contents.replace(/\{circle-red\}/g, '🔴');
-  contents = contents.replace(/\{circle-grey\}/g, '🔘');
+  contents = replaceCircles(contents);
 
   load_ics(contents);
 }
@@ -76,9 +74,7 @@ function load_ics_from_base64(input) {
 function fetch_ics_feed(url, cors, show_share) {
   return new Promise(resolve => {
     $.get(cors ? `${cors_anywhere_url}${url}` : url, res => {
-      res = res.replace(/\{circle-green\}/g, '🟢');
-      res = res.replace(/\{circle-red\}/g, '🔴');
-      res = res.replace(/\{circle-grey\}/g, '🔘');
+      res = replaceCircles(res);
 
       load_ics(res);
       resolve();
@@ -89,17 +85,50 @@ function fetch_ics_feed(url, cors, show_share) {
   });
 }
 $(document).ready(async function () {
+  $.get('teams.json', res => {
+    // console.log(res);
+  });
+
   $('#calendar').fullCalendar({
-    header: {
-      left: 'prev,next today',
-      center: 'title',
-      right: ''
-    },
     navLinks: true,
     editable: false,
     minTime: '7:30:00',
     maxTime: '21:30:00',
     contentHeight: 500,
+    header: {
+      left: 'prev,next today',
+      center: 'title',
+      right: ''
+    },
+    eventClick: function (event) {
+      const url = event.description?.match(/(https[^"]+)/);
+
+      if (url) {
+        window.open(url[1], '_blank');
+        return false;
+      }
+    },
+    eventRender: function (info) {
+      const a = document.createElement('a');
+
+      a.className = 'fc-day-grid-event fc-h-event fc-event fc-start fc-end';
+      a.style.backgroundColor = info.color;
+      a.style.borderColor = info.color;
+      a.innerHTML = `
+        <div class="fc-content">
+          ${
+            info.start.hasTime()
+              ? `<span class="fc-time">${info.start.format('H:mm')}h</span>`
+              : ''
+          }
+          <span class="fc-title">
+          ${info.title}
+          </span>
+        </div>
+      `;
+
+      return a;
+    },
     /** */
     ignoreTimezone: false,
     timeFormat: 'H:mm[h]',
@@ -157,23 +186,23 @@ $(document).ready(async function () {
   const url_cors = URIHash.get('cors') === 'true';
   const url_title = URIHash.get('title');
   const url_hideinput = URIHash.get('hideinput') === 'true';
-  console.log({
-    url_feed,
-    url_file,
-    url_cors,
-    url_title,
-    url_hideinput
-  });
+  // console.log({
+  //   url_feed,
+  //   url_file,
+  //   url_cors,
+  //   url_title,
+  //   url_hideinput
+  // });
   if (url_title) {
     //$('h1').text(url_title);
   }
   if (url_feed) {
     url = url_feed.replace(cors_anywhere_url, '');
-    console.log(`Load ${url}`);
+    // console.log(`Load ${url}`);
     fetch_ics_feed(url, url_cors, false);
     $('#eventsource').val(url);
   } else if (url_file) {
-    console.log(`Load file from file`);
+    // console.log(`Load file from file`);
     load_ics_from_base64(url_file);
   }
   if (url_cors) {
@@ -193,15 +222,25 @@ $(document).ready(async function () {
     fetch_ics_feed(url, corsAnywhereOn, true);
   });
 
+  const shortName = document.body.clientWidth < 800 ? '_shortname' : '';
+
   load_files([
-    '2023.ics',
-    '2022.ics',
-    '2021.ics',
-    '2020-2021.ics',
-    '2019-2020.ics',
-    '2018.ics'
+    `2023${shortName}.ics`,
+    `2022${shortName}.ics`,
+    `2021${shortName}.ics`,
+    `2020-2021${shortName}.ics`,
+    `2019-2020${shortName}.ics`,
+    `2018${shortName}.ics`
   ]);
 });
+
+function replaceCircles(text) {
+  text = text.replace(/\{circle-green\}/g, `🟢<br>`);
+  text = text.replace(/\{circle-red\}/g, `🔴<br>`);
+  text = text.replace(/\{circle-grey\}/g, `🔘<br>`);
+
+  return text;
+}
 
 async function load_files(files) {
   let allEvents = [];
@@ -209,9 +248,7 @@ async function load_files(files) {
   for (let file of files) {
     await new Promise(async resolve => {
       $.get(file, res => {
-        res = res.replace(/\{circle-green\}/g, '🟢');
-        res = res.replace(/\{circle-red\}/g, '🔴');
-        res = res.replace(/\{circle-grey\}/g, '🔘');
+        res = replaceCircles(res);
 
         const parsed = ICAL.parse(res);
         const events = parsed[2].map(([type, event_fields]) => {
@@ -234,26 +271,6 @@ async function load_files(files) {
       });
     });
   }
-
-  console.log(allEvents);
-
-  /*const parsed = ICAL.parse(ics_data);
-  console.log(parsed);
-  const events = parsed[2].map(([type, event_fields]) => {
-    if (type !== 'vevent') return;
-    return event_fields.reduce((event, field) => {
-      const [original_key, _, type, original_value] = field;
-      const key =
-        original_key in mapping ? mapping[original_key] : original_key;
-      const value =
-        type in value_type_mapping
-          ? value_type_mapping[type](original_value)
-          : original_value;
-      event[key] = value;
-      return event;
-    }, {});
-  });
-  */
 
   $('#calendar').fullCalendar('removeEventSources');
   $('#calendar').fullCalendar('addEventSource', allEvents);
