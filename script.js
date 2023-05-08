@@ -119,9 +119,12 @@ $(document).ready(async function () {
     const tagA = document.createElement('a');
     tagA.innerText = '(Baixar Dados)';
     tagA.download = 'dados.json';
-    tagA.href = `data:application/json;base64,${btoa(
-      localStorage.getItem('members')
-    )}`;
+    tagA.href = 'javascript:void(0)';
+    tagA.onclick = () => {
+      document.body.innerHTML = `<textarea>${localStorage.getItem(
+        'members'
+      )}</textarea>`;
+    };
     document.querySelector('.members').appendChild(tagA);
 
     var data = [
