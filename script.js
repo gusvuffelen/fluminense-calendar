@@ -116,6 +116,14 @@ $(document).ready(async function () {
 
     localStorage.setItem('members', JSON.stringify(members));
 
+    const tagA = document.createElement('a');
+    tagA.innerText = '(Baixar Dados)';
+    tagA.download = 'dados.json';
+    tagA.href = `data:application/json;base64,${btoa(
+      localStorage.getItem('members')
+    )}`;
+    document.querySelector('.members').appendChild(tagA);
+
     var data = [
       {
         x: members.map(m => m.date),
