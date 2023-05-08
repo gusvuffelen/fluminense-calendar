@@ -106,55 +106,40 @@ $(document).ready(async function () {
     // console.log(res);
   });
 
-  $.get('https://api.sociofutebol.com.br/public/counter', res => {
-    const members = JSON.parse(localStorage.getItem('members') || '[]');
+  $.get(
+    'https://us-east-1.aws.data.mongodb-api.com/app/flu-xtcyx/endpoint/getMembersCount',
+    res => {
+      const members = res;
 
-    members.push({
-      date: getDate(),
-      total: res.res
-    });
-
-    localStorage.setItem('members', JSON.stringify(members));
-
-    const tagA = document.createElement('a');
-    tagA.innerText = '(Baixar Dados)';
-    tagA.download = 'dados.json';
-    tagA.href = 'javascript:void(0)';
-    tagA.onclick = () => {
-      document.body.innerHTML = `<textarea>${localStorage.getItem(
-        'members'
-      )}</textarea>`;
-    };
-    document.querySelector('.members').appendChild(tagA);
-
-    var data = [
-      {
-        x: members.map(m => m.date),
-        y: members.map(m => m.total),
-        type: 'scatter'
-      }
-    ];
-
-    Plotly.newPlot(
-      'members',
-      data,
-      {
-        width: document.body.clientWidth - 50,
-        height: document.body.clientHeight / 3,
-        margin: {
-          l: 80,
-          r: 20,
-          b: 50,
-          t: 50,
-          pad: 4
+      var data = [
+        {
+          x: members.map(m => m.date),
+          y: members.map(m => m.total),
+          type: 'scatter'
         }
-      },
-      { displayModeBar: true }
-    );
-    document.querySelector('#members').firstChild.onclick = e => {
-      e.stopPropagation();
-    };
-  });
+      ];
+
+      Plotly.newPlot(
+        'members',
+        data,
+        {
+          width: document.body.clientWidth - 50,
+          height: document.body.clientHeight / 3,
+          margin: {
+            l: 80,
+            r: 20,
+            b: 50,
+            t: 50,
+            pad: 4
+          }
+        },
+        { displayModeBar: true }
+      );
+      document.querySelector('#members').firstChild.onclick = e => {
+        e.stopPropagation();
+      };
+    }
+  );
 
   $('#calendar').fullCalendar({
     navLinks: true,
