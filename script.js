@@ -102,10 +102,6 @@ function getDate() {
 }
 
 $(document).ready(async function () {
-  $.get('teams.json', res => {
-    // console.log(res);
-  });
-
   $.get(
     'https://us-east-1.aws.data.mongodb-api.com/app/flu-xtcyx/endpoint/getMembersCount',
     res => {
@@ -169,7 +165,7 @@ $(document).ready(async function () {
       a.innerHTML = `
         <div class="fc-content">
           ${
-            info.start.hasTime()
+            !info.completed && info.hasTime
               ? `<span class="fc-time">${info.start.format('H:mm')}h</span>`
               : ''
           }
@@ -233,18 +229,107 @@ $(document).ready(async function () {
       'Dez'
     ]
   });
+
+  function toISOString(date, hour = 0) {
+    const newDate = new Date(+date);
+    newDate.setHours(newDate.getHours() + hour);
+
+    return newDate.toISOString().replace(/\.[0-9]{3}Z/, 'Z');
+  }
+
+  function getTitle(game) {
+    const attrTitle =
+      document.body.clientWidth < 800 ? 'abbrev' : 'shortDisplayName';
+    const home = `${game.home[attrTitle]}${
+      game.completed ? `(${game.home.score})` : ''
+    }`;
+    const visitor = `${game.visitor[attrTitle]}${
+      game.completed ? `(${game.visitor.score})` : ''
+    }`;
+    let result = '';
+
+    if (game.completed) {
+      const flu = game.home.id === '3445' ? game.home : game.visitor;
+      const rival = game.home.id === '3445' ? game.visitor : game.home;
+
+      result = `${
+        flu.score > rival.score ? '🟢' : flu.score < rival.score ? '🔴' : '🔘'
+      }<br>`;
+    }
+
+    return `${result}${home}<br>${visitor}`;
+  }
+
+  const tournaments = {
+    'Campeonato Brasileiro': {
+      color: '#2c2d7c'
+    },
+    'CONMEBOL Libertadores': {
+      color: '#e1b557'
+    },
+    'Copa do Brasil': {
+      color: '#285e39'
+    },
+    'Campeonato Carioca': {
+      color: '#25b8b4'
+    },
+    'CONMEBOL Sudamericana': {
+      color: '#6a6a6a'
+    },
+    Amistoso: {
+      color: '#ffffff'
+    }
+  };
+
+  $.get(
+    'https://us-east-1.aws.data.mongodb-api.com/app/flu-xtcyx/endpoint/getGames',
+    res => {
+      const events = res.map(game => {
+        const uid = game._id;
+        const color = tournaments[game.league].color;
+        const start = toISOString(new Date(game.date), -3);
+        const end = toISOString(new Date(game.date), -1);
+        const title = getTitle(game);
+
+        return {
+          uid,
+          color,
+          title,
+          start,
+          end,
+          completed: game.completed,
+          hasTime: !game.status.detail.includes('A definir'),
+          dtstamp: game.updated_at,
+          created: game.created_at,
+          'last-modified': game.updated_at,
+          description: `<a href="https://www.espn.com.br${game.link}">Ver detalhes</a>`,
+          status: 'CONFIRMED',
+          transp: 'OPAQUE',
+          sequence: 0
+        };
+      });
+
+      $('#calendar').fullCalendar('addEventSource', events);
+
+      /*const shortName = document.body.clientWidth < 800 ? '_shortname' : '';
+
+      load_files([
+        `2023${shortName}.ics`,
+        `2022${shortName}.ics`,
+        `2021${shortName}.ics`,
+        `2020-2021${shortName}.ics`,
+        `2019-2020${shortName}.ics`,
+        `2018${shortName}.ics`
+      ]);*/
+    }
+  );
+
   const url_feed = URIHash.get('feed');
   const url_file = URIHash.get('file');
   const url_cors = URIHash.get('cors') === 'true';
   const url_title = URIHash.get('title');
   const url_hideinput = URIHash.get('hideinput') === 'true';
-  // console.log({
-  //   url_feed,
-  //   url_file,
-  //   url_cors,
-  //   url_title,
-  //   url_hideinput
-  // });
+
   if (url_title) {
     //$('h1').text(url_title);
   }
@@ -273,17 +358,6 @@ $(document).ready(async function () {
     const url = $('#eventsource').val();
     fetch_ics_feed(url, corsAnywhereOn, true);
   });
-
-  const shortName = document.body.clientWidth < 800 ? '_shortname' : '';
-
-  load_files([
-    `2023${shortName}.ics`,
-    `2022${shortName}.ics`,
-    `2021${shortName}.ics`,
-    `2020-2021${shortName}.ics`,
-    `2019-2020${shortName}.ics`,
-    `2018${shortName}.ics`
-  ]);
 });
 
 function replaceCircles(text) {
