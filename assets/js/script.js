@@ -369,32 +369,12 @@ function replaceCircles(text) {
 }
 
 function toggleLegends() {
-  if (document.body.clientWidth < 800) {
-    const legends = document.querySelector('.legend');
+  const legends = document.querySelector('.legend-banner');
 
-    if (legends.style.display === 'block') {
-      legends.style.removeProperty('display');
-      legends.style.removeProperty('position');
-      legends.style.removeProperty('top');
-      legends.style.removeProperty('left');
-      legends.style.removeProperty('background-color');
-      legends.style.removeProperty('max-width');
-      legends.style.removeProperty('width');
-      legends.style.removeProperty('height');
-      legends.style.removeProperty('padding-top');
-      legends.style.removeProperty('z-index');
-    } else {
-      legends.style.display = 'block';
-      legends.style.position = 'absolute';
-      legends.style.top = '0';
-      legends.style.left = '0';
-      legends.style.backgroundColor = 'rgba(0,0,0,0.7)';
-      legends.style.maxWidth = '100%';
-      legends.style.width = '100%';
-      legends.style.height = '100%';
-      legends.style.paddingTop = '80px';
-      legends.style.zIndex = '4';
-    }
+  if (legends.style.display === 'block') {
+    legends.style.removeProperty('display');
+  } else {
+    legends.style.display = 'block';
   }
 }
 
@@ -414,7 +394,7 @@ function toggleMembers() {
     members.style.removeProperty('z-index');
   } else {
     members.style.display = 'block';
-    members.style.position = 'absolute';
+    members.style.position = 'fixed';
     members.style.top = '0';
     members.style.left = '0';
     members.style.backgroundColor = 'rgba(0,0,0,0.7)';

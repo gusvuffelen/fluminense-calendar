@@ -1,18 +1,9 @@
 {
-  "name": "online-ics-feed-viewer",
+  "name": "fluminense-calendar",
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "npx live-server"
+    "start": "http-server"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/larrybolt/online-ics-feed-viewer.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/larrybolt/online-ics-feed-viewer/issues"
-  },
-  "homepage": "https://github.com/larrybolt/online-ics-feed-viewer#readme"
+  "author": "gusvuffelen"
 }

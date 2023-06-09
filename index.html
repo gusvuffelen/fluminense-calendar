@@ -5,65 +5,131 @@
     <title>Fluminense - Calendar</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="./fullcalendar.min.css" rel="stylesheet" />
-    <link href="./fullcalendar.print.min.css" rel="stylesheet" media="print" />
+    <link href="./assets/css/fullcalendar.min.css" rel="stylesheet" />
+    <link
+      href="./assets/css/fullcalendar.print.min.css"
+      rel="stylesheet"
+      media="print"
+    />
     <script src="./lib/moment.min.js"></script>
     <script src="./lib/jquery.min.js"></script>
-    <script src="./fullcalendar.min.js"></script>
-    <script src="./ical.min.js"></script>
-    <script src="./urlhash.js"></script>
-    <script src="./script.js"></script>
-    <script src="./plotly-2.20.0.min.js"></script>
+    <script src="./assets/js/fullcalendar.min.js"></script>
+    <script src="./assets/js/ical.min.js"></script>
+    <script src="./assets/js/urlhash.js"></script>
+    <script src="./assets/js/script.js"></script>
+    <script src="./assets/js/plotly-2.20.0.min.js"></script>
     <style>
+      html,
       body {
-        margin: 40px 10px;
+        width: 100%;
+        height: 100%;
+        margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-image: url(assets/img/wallpaper-flu.png);
+        background-size: cover;
+        background-position: center;
+        background-color: #6e182c;
         font-family: 'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
         font-size: 14px;
       }
 
-      #calendar,
-      .legend,
       header,
-      h1,
+      main,
       footer {
-        max-width: calc(100% - 100px);
-        margin: 0 auto;
+        padding: 10px 50px 0;
       }
-      body.from_url header {
-        display: none;
-      }
-      body.from_url footer {
-        display: none;
-      }
-      header {
-        margin: 0 auto 20px;
-      }
-      input[type='text'] {
-        width: 70%;
-        font-size: medium;
-        padding: 4px;
-      }
-      header button {
-        font-size: medium;
-        padding: 4px;
-        width: 20%;
-      }
-      .line {
+
+      .flex-header {
         display: flex;
+        width: 100%;
+        justify-content: space-between;
       }
 
-      small.source {
-        position: absolute;
-        right: 3px;
-        bottom: 3px;
+      .flex-footer {
+        display: none;
+        width: 100%;
+        justify-content: space-between;
       }
-      #share {
+
+      .title {
+        font-size: 20px;
+        color: #c7bcc0;
+        position: absolute;
+        margin: -25px 0 0 83px;
+        font-family: system-ui;
+        text-shadow: 0 0 1px #5e5e5e;
+      }
+
+      .legend {
+        background-color: rgba(255, 255, 255, 0.9);
+        margin: 0 50px 0 50px;
+        border-radius: 7px;
+        padding: 5px;
+      }
+
+      .legend-img {
+        width: 50px;
+      }
+
+      #members,
+      .toggle-legend,
+      .legend-banner {
         display: none;
       }
+      .user-select-none.svg-container {
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
 
-      .fc-title {
-        white-space: initial;
+      .legend-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+        padding-top: 40px;
+        z-index: 4;
+      }
+
+      .legend-banner tr {
+        background-color: white;
+      }
+
+      @media only screen and (max-width: 1270px) {
+        .legend-lable {
+          display: none;
+        }
+        .legend-img {
+          width: 80px;
+        }
+      }
+
+      @media only screen and (max-width: 1015px) {
+        .legend {
+          display: none;
+        }
+        .toggle-legend {
+          display: block;
+        }
+      }
+
+      @media only screen and (max-width: 700px) {
+        header {
+          display: none;
+        }
+        main,
+        footer {
+          padding: 5px 5px 0;
+        }
+
+        .flex-footer {
+          display: flex;
+        }
       }
 
       .fc-center {
@@ -95,6 +161,10 @@
         touch-action: manipulation;
       }
 
+      .fc-view {
+        background-color: rgba(255, 255, 255, 0.8);
+      }
+
       .fc-unthemed .fc-content,
       .fc-unthemed .fc-divider,
       .fc-unthemed .fc-list-heading td,
@@ -106,10 +176,6 @@
       .fc-unthemed th,
       .fc-unthemed thead {
         border-color: #4d4a4a;
-      }
-
-      .fc-view {
-        background-color: rgba(255, 255, 255, 0.9);
       }
 
       .fc-unthemed td.fc-today {
@@ -132,68 +198,7 @@
         padding: 4px;
       }
 
-      .container {
-        padding-top: 20px;
-      }
-
-      .toggle-legend,
-      #members {
-        display: none;
-      }
-
-      .logo {
-        color: white;
-        padding-left: 90px;
-        text-shadow: 2px 2px 3px #3d3d3d;
-        position: absolute;
-        padding: 0px;
-        left: 50px;
-        top: 2px;
-      }
-
-      .title {
-        position: absolute;
-        left: 87px;
-        top: 59px;
-      }
-
-      .members {
-        position: absolute;
-        right: 50px;
-        top: 2px;
-      }
-
-      .user-select-none.svg-container {
-        margin-left: auto !important;
-        margin-right: auto !important;
-      }
-
       @media only screen and (max-width: 800px) {
-        #calendar,
-        .legend,
-        header,
-        h1,
-        footer {
-          max-width: calc(100% - 10px);
-          margin: 0 auto;
-        }
-
-        .container {
-          padding: 0;
-        }
-
-        .logo,
-        .members,
-        .legend,
-        .container > h1,
-        .container > h1 + br {
-          display: none;
-        }
-
-        .toggle-legend {
-          display: block;
-        }
-
         .fc button {
           width: 3.5em;
           height: 2.5em;
@@ -206,115 +211,116 @@
     </style>
   </head>
   <body>
-    <div
-      style="
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-image: url(wallpaper-flu.png);
-        background-size: cover;
-        background-position: center;
-        background-color: #6e182c;
-        top: 0;
-        left: 0;
-        z-index: 1;
-      "
-    ></div>
-    <div
-      class="container"
-      style="
-        position: absolute;
-        width: 100%;
-        height: calc(100% - 20px);
-        top: 0;
-        left: 0;
-        z-index: 2;
-      "
-    >
-      <table width="100%">
-        <tr>
-          <td width="25%">
-            <h1 class="logo">
-              <img width="240" src="flu-assinatura-full.png" />
-              <div class="title">Calendar</div>
-            </h1>
-          </td>
-          <td width="50%">
-            <div class="legend" onclick="toggleLegends()">
-              <a
-                class="toggle-legend"
-                href="javascript:void(0)"
-                style="margin-left: 10px; color: white"
-                onclick="toggleLegends()"
-                >Legendas</a
-              >
-              <table
-                align="center"
-                style="
-                  background-color: rgba(255, 255, 255, 0.9);
-                  border-radius: 7px;
-                  padding: 5px;
-                "
-              >
-                <tr>
-                  <td
-                    width="50"
-                    align="center"
-                    style="background-color: #2c2d7c"
-                  >
-                    <img width="30" src="logo-brasileirao.png" />
-                  </td>
-                  <td>Campeonato Brasileiro</td>
-                  <td
-                    width="50"
-                    align="center"
-                    style="background-color: #e1b557"
-                  >
-                    <img width="30" src="logo-libertadores.png" />
-                  </td>
-                  <td>CONMEBOL Libertadores</td>
-                  <td
-                    width="50"
-                    align="center"
-                    style="background-color: #285e39"
-                  >
-                    <img width="30" src="logo-copa-do-brasil.png" />
-                  </td>
-                  <td>Copa do Brasil</td>
-                  <td
-                    width="50"
-                    align="center"
-                    style="background-color: #25b8b4"
-                  >
-                    <img width="30" src="logo-carioca.png" />
-                  </td>
-                  <td>Campeonato Carioca</td>
-                  <td
-                    width="50"
-                    align="center"
-                    style="background-color: #6a6a6a"
-                  >
-                    <img width="30" src="logo-sul-americana.png" />
-                  </td>
-                  <td>CONMEBOL Sudamericana</td>
-                </tr>
-              </table>
-            </div>
-          </td>
-          <td width="25%" align="right">
-            <div class="members">
-              <a
-                class="toggle-members"
-                href="javascript:void(0)"
-                onclick="toggleMembers()"
-                ><img width="240" src="logo-sociofutebol.png"
-              /></a>
-            </div>
-          </td>
-        </tr>
-      </table>
-      <br />
-      <div id="calendar"></div>
-    </div>
+    <header>
+      <div class="flex-header">
+        <div>
+          <img width="230" src="assets/img/flu-assinatura-full.png" />
+          <div class="title">CALENDAR</div>
+        </div>
+        <div>
+          <table class="legend">
+            <tr>
+              <td width="50" align="center" style="background-color: #2c2d7c">
+                <img class="legend-img" src="assets/img/logo-brasileirao.png" />
+              </td>
+              <td class="legend-lable">Campeonato Brasileiro</td>
+              <td width="50" align="center" style="background-color: #e1b557">
+                <img
+                  class="legend-img"
+                  src="assets/img/logo-libertadores.png"
+                />
+              </td>
+              <td class="legend-lable">CONMEBOL Libertadores</td>
+              <td width="50" align="center" style="background-color: #285e39">
+                <img
+                  class="legend-img"
+                  src="assets/img/logo-copa-do-brasil.png"
+                />
+              </td>
+              <td class="legend-lable">Copa do Brasil</td>
+              <td width="50" align="center" style="background-color: #25b8b4">
+                <img class="legend-img" src="assets/img/logo-carioca.png" />
+              </td>
+              <td class="legend-lable">Campeonato Carioca</td>
+              <td width="50" align="center" style="background-color: #6a6a6a">
+                <img
+                  class="legend-img"
+                  src="assets/img/logo-sul-americana.png"
+                />
+              </td>
+              <td class="legend-lable">CONMEBOL Sudamericana</td>
+            </tr>
+          </table>
+          <a
+            class="toggle-legend"
+            href="javascript:void(0)"
+            style="margin-left: 10px; color: white"
+            onclick="toggleLegends()"
+            >Legendas</a
+          >
+        </div>
+        <div>
+          <a
+            class="toggle-members"
+            href="javascript:void(0)"
+            onclick="toggleMembers()"
+            ><img width="150" src="assets/img/logo-sociofutebol.png"
+          /></a>
+        </div>
+      </div>
+    </header>
+    <main id="calendar"></main>
+    <footer>
+      <div class="flex-footer">
+        <a
+          href="javascript:void(0)"
+          style="color: white"
+          onclick="toggleLegends()"
+          >Legendas</a
+        >
+        <a
+          href="javascript:void(0)"
+          style="color: white"
+          onclick="toggleMembers()"
+          >Sócios</a
+        >
+      </div>
+      <div id="members" onclick="toggleMembers()"></div>
+      <div class="legend-banner" onclick="toggleLegends()">
+        <table align="center">
+          <tr>
+            <td width="50" align="center" style="background-color: #2c2d7c">
+              <img width="50" src="assets/img/logo-brasileirao.png" />
+            </td>
+
+            <td>Campeonato Brasileiro</td>
+          </tr>
+          <tr>
+            <td width="50" align="center" style="background-color: #e1b557">
+              <img width="50" src="assets/img/logo-libertadores.png" />
+            </td>
+            <td>CONMEBOL Libertadores</td>
+          </tr>
+          <tr>
+            <td width="50" align="center" style="background-color: #285e39">
+              <img width="50" src="assets/img/logo-copa-do-brasil.png" />
+            </td>
+            <td>Copa do Brasil</td>
+          </tr>
+          <tr>
+            <td width="50" align="center" style="background-color: #25b8b4">
+              <img width="50" src="assets/img/logo-carioca.png" />
+            </td>
+            <td>Campeonato Carioca</td>
+          </tr>
+          <tr>
+            <td width="50" align="center" style="background-color: #6a6a6a">
+              <img width="50" src="assets/img/logo-sul-americana.png" />
+            </td>
+            <td>CONMEBOL Sudamericana</td>
+          </tr>
+        </table>
+      </div>
+    </footer>
   </body>
 </html>
