@@ -137,6 +137,11 @@ $(document).ready(async function () {
   function getTeamLabel(team, score) {
     const attrTitle =
       document.body.clientWidth < 800 ? 'abbrev' : 'shortDisplayName';
+    const labelScore = score ? `<td>(${score})</td>` : '';
+    const labelName =
+      document.body.clientWidth < 555 && labelScore
+        ? team[attrTitle].charAt(0)
+        : team[attrTitle];
 
     return `
       <table style="width:auto">
@@ -145,8 +150,8 @@ $(document).ready(async function () {
             team.id || team._id
           }.png&scale=crop&cquality=40&location=origin&w=40&h=40"/>
           </td>
-          <td>${team[attrTitle]}</td>
-          ${score ? `<td>(${score})</td>` : ''}
+          <td>${labelName}</td>
+          ${labelScore}
         </tr>
       </table>
     `;
