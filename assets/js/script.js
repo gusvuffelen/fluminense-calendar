@@ -1,106 +1,3 @@
-const cors_anywhere_url = 'https://larrybolt-cors-anywhere.herokuapp.com/';
-const mapping = {
-  dtstart: 'start',
-  dtend: 'end',
-  summary: 'title'
-};
-
-const value_type_mapping = {
-  'date-time': input => {
-    if (input.substr(-3) === 'T::') {
-      return input.substr(0, input.length - 3);
-    }
-    return input;
-  }
-};
-
-function load_ics(ics_data) {
-  const parsed = ICAL.parse(ics_data);
-  const events = parsed[2].map(([type, event_fields]) => {
-    if (type !== 'vevent') return;
-    return event_fields.reduce((event, field) => {
-      const [original_key, _, type, original_value] = field;
-      const key =
-        original_key in mapping ? mapping[original_key] : original_key;
-      const value =
-        type in value_type_mapping
-          ? value_type_mapping[type](original_value)
-          : original_value;
-      event[key] = value;
-      return event;
-    }, {});
-  });
-  $('#calendar').fullCalendar('removeEventSources');
-  $('#calendar').fullCalendar('addEventSource', events);
-}
-
-function createShareUrl(feed, cors, title, file) {
-  if (feed) {
-    URIHash.set('feed', feed);
-  }
-  if (file) {
-    URIHash.set('file', file);
-  }
-  URIHash.set('cors', cors);
-  URIHash.set('title', title);
-  URIHash.set('hideinput', $('#share input').is(':checked'));
-  $('#share').show('slow');
-}
-function openFile(event) {
-  var input = event.target;
-  var reader = new FileReader();
-  reader.onload = function () {
-    const result = reader.result.split('base64,')[1];
-    const title =
-      atob(result)
-        .split(`\n`)
-        .filter(row => row.includes('X-WR-CALNAME'))[0]
-        ?.replace('X-WR-CALNAME:', '') || 'My events';
-
-    createShareUrl(null, false, title, result);
-    load_ics_from_base64(result);
-  };
-  reader.readAsDataURL(input.files[0]);
-}
-
-function load_ics_from_base64(input) {
-  let contents = atob(input);
-
-  contents = replaceCircles(contents);
-
-  load_ics(contents);
-}
-
-function fetch_ics_feed(url, cors, show_share) {
-  return new Promise(resolve => {
-    $.get(cors ? `${cors_anywhere_url}${url}` : url, res => {
-      res = replaceCircles(res);
-
-      load_ics(res);
-      resolve();
-    });
-    if (show_share) {
-      createShareUrl(url, !!cors, 'My Feed');
-    }
-  });
-}
-
-function getDate() {
-  return new Date(
-    new Date().setHours(
-      new Date().getHours() - new Date().getTimezoneOffset() / 60,
-      new Date().getMinutes(),
-      new Date().getSeconds(),
-      0
-    )
-  )
-    .toISOString()
-    .replace(
-      /([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).*/,
-      '$1-$2-$3 $4:$5:$6'
-    );
-}
-
 $(document).ready(async function () {
   $.get(
     'https://us-east-1.aws.data.mongodb-api.com/app/flu-xtcyx/endpoint/getMembersCount',
@@ -237,15 +134,35 @@ $(document).ready(async function () {
     return newDate.toISOString().replace(/\.[0-9]{3}Z/, 'Z');
   }
 
+  function getTeamLabel(team, score) {
+    const attrTitle =
+      document.body.clientWidth < 800 ? 'abbrev' : 'shortDisplayName';
+
+    return `
+      <table style="width:auto">
+        <tr>
+          <td><img width="15" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/${
+            team.id || team._id
+          }.png&scale=crop&cquality=40&location=origin&w=40&h=40"/>
+          </td>
+          <td>${team[attrTitle]}</td>
+          ${score ? `<td>(${score})</td>` : ''}
+        </tr>
+      </table>
+    `;
+  }
+
   function getTitle(game) {
     const attrTitle =
       document.body.clientWidth < 800 ? 'abbrev' : 'shortDisplayName';
-    const home = `${game.home[attrTitle]}${
-      game.completed ? `(${game.home.score})` : ''
-    }`;
-    const visitor = `${game.visitor[attrTitle]}${
-      game.completed ? `(${game.visitor.score})` : ''
-    }`;
+    const home = `${getTeamLabel(
+      game.home,
+      game.completed ? game.home.score.toString() : ''
+    )}`;
+    const visitor = `${getTeamLabel(
+      game.visitor,
+      game.completed ? game.visitor.score.toString() : ''
+    )}`;
     let result = '';
 
     if (game.completed) {
@@ -257,7 +174,7 @@ $(document).ready(async function () {
       }<br>`;
     }
 
-    return `${result}${home}<br>${visitor}`;
+    return `${result}${home}${visitor}`;
   }
 
   const tournaments = {
@@ -310,63 +227,9 @@ $(document).ready(async function () {
       });
 
       $('#calendar').fullCalendar('addEventSource', events);
-
-      /*const shortName = document.body.clientWidth < 800 ? '_shortname' : '';
-
-      load_files([
-        `2023${shortName}.ics`,
-        `2022${shortName}.ics`,
-        `2021${shortName}.ics`,
-        `2020-2021${shortName}.ics`,
-        `2019-2020${shortName}.ics`,
-        `2018${shortName}.ics`
-      ]);*/
     }
   );
-
-  const url_feed = URIHash.get('feed');
-  const url_file = URIHash.get('file');
-  const url_cors = URIHash.get('cors') === 'true';
-  const url_title = URIHash.get('title');
-  const url_hideinput = URIHash.get('hideinput') === 'true';
-
-  if (url_title) {
-    //$('h1').text(url_title);
-  }
-  if (url_feed) {
-    url = url_feed.replace(cors_anywhere_url, '');
-    // console.log(`Load ${url}`);
-    fetch_ics_feed(url, url_cors, false);
-    $('#eventsource').val(url);
-  } else if (url_file) {
-    // console.log(`Load file from file`);
-    load_ics_from_base64(url_file);
-  }
-  if (url_cors) {
-    $('#cors-enabled').prop('checked', true);
-  }
-  if (url_hideinput) {
-    $('body').addClass('from_url');
-  }
-  $('#share input').click(function () {
-    if ($('#cors-enabled').is(':checked')) {
-      URIHash.set('hideinput', 'true');
-    }
-  });
-  $('#fetch').click(function () {
-    const corsAnywhereOn = $('#cors-enabled').is(':checked');
-    const url = $('#eventsource').val();
-    fetch_ics_feed(url, corsAnywhereOn, true);
-  });
 });
-
-function replaceCircles(text) {
-  text = text.replace(/\{circle-green\}/g, `🟢<br>`);
-  text = text.replace(/\{circle-red\}/g, `🔴<br>`);
-  text = text.replace(/\{circle-grey\}/g, `🔘<br>`);
-
-  return text;
-}
 
 function toggleLegends() {
   const legends = document.querySelector('.legend-banner');
@@ -404,44 +267,4 @@ function toggleMembers() {
     members.style.paddingTop = '80px';
     members.style.zIndex = '4';
   }
-}
-
-async function load_files(files) {
-  let allEvents = [];
-
-  for (let file of files) {
-    await new Promise(async resolve => {
-      $.get(file, res => {
-        res = replaceCircles(res);
-
-        const parsed = ICAL.parse(res);
-        const events = parsed[2].map(([type, event_fields]) => {
-          if (type !== 'vevent') return;
-          return event_fields.reduce((event, field) => {
-            const [original_key, _, type, original_value] = field;
-            const key =
-              original_key in mapping ? mapping[original_key] : original_key;
-            const value =
-              type in value_type_mapping
-                ? value_type_mapping[type](original_value)
-                : original_value;
-            event[key] = value;
-            return event;
-          }, {});
-        });
-        allEvents = [...allEvents, ...events];
-
-        resolve();
-      });
-    });
-  }
-
-  if (document.body.clientWidth < 800) {
-    allEvents.forEach(event => {
-      event.title = event.title.replace(' vs ', '<br>');
-    });
-  }
-
-  $('#calendar').fullCalendar('removeEventSources');
-  $('#calendar').fullCalendar('addEventSource', allEvents);
 }
