@@ -49,9 +49,14 @@
       }
 
       .flex-footer {
-        display: none;
+        display: flex;
         width: 100%;
         justify-content: space-between;
+      }
+
+      .link-legends,
+      .link-members {
+        display: none;
       }
 
       .title {
@@ -77,6 +82,7 @@
       }
 
       #members,
+      #players,
       .toggle-legend,
       .legend-banner {
         display: none;
@@ -84,6 +90,74 @@
       .user-select-none.svg-container {
         margin-left: auto !important;
         margin-right: auto !important;
+      }
+
+      #players .player,
+      #players .player .player-bg,
+      #players .player .player-content {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      #players .player .player-bg {
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        position: absolute;
+      }
+
+      #players .player .player-content {
+        position: absolute;
+        color: white;
+        font-size: 20px;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        text-shadow: 0 0 5px black;
+      }
+
+      #players .prev,
+      #players .next,
+      #players .exit {
+        position: fixed;
+        top: 50%;
+        color: white;
+        font-size: 40px;
+        cursor: pointer;
+        width: 1px;
+        height: 1px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      }
+
+      #players .prev {
+        left: 30px;
+      }
+
+      #players .prev:before {
+        content: '<';
+        text-shadow: 0 0 5px black;
+      }
+
+      #players .next {
+        right: 30px;
+      }
+
+      #players .next:before {
+        content: '>';
+        text-shadow: 0 0 5px black;
+      }
+
+      #players .exit {
+        top: 30px;
+        right: 30px;
+      }
+
+      #players .exit:before {
+        content: 'X';
       }
 
       .legend-banner {
@@ -129,8 +203,10 @@
           padding: 5px 5px 0;
         }
 
-        .flex-footer {
-          display: flex;
+        .link-legends,
+        .link-players,
+        .link-members {
+          display: block;
         }
       }
 
@@ -151,6 +227,10 @@
 
       .fc-day-grid-event .fc-content {
         cursor: pointer;
+      }
+
+      tr:first-child > td > .fc-day-grid-event {
+        margin-top: 28px;
       }
 
       .fc-content > .fc-time {
@@ -190,6 +270,10 @@
           rgba(255, 255, 255, 0.5) 54%,
           rgba(140, 24, 38, 0.5) 55%
         );
+      }
+
+      a.fc-day-number {
+        position: absolute;
       }
 
       .fc-unthemed td.fc-today a.fc-day-number {
@@ -278,16 +362,30 @@
           href="javascript:void(0)"
           style="color: white"
           onclick="toggleLegends()"
+          class="link-legends"
           >Legendas</a
         >
         <a
           href="javascript:void(0)"
           style="color: white"
+          onclick="togglePlayers()"
+          class="link-players"
+          >Jogadores</a
+        >
+        <a
+          href="javascript:void(0)"
+          style="color: white"
           onclick="toggleMembers()"
+          class="link-members"
           >Sócios</a
         >
       </div>
       <div id="members" onclick="toggleMembers()"></div>
+      <div id="players">
+        <div class="prev" onclick="playerPrev()"></div>
+        <div class="next" onclick="playerNext()"></div>
+        <div class="exit" onclick="togglePlayers()"></div>
+      </div>
       <div class="legend-banner" onclick="toggleLegends()">
         <table align="center">
           <tr>
