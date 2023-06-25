@@ -130,11 +130,11 @@ $(document).ready(async function () {
           start,
           end,
           completed: game.completed,
-          hasTime: !game.status.detail.includes('A definir'),
+          hasTime: game.hasTime,
           dtstamp: game.updated_at,
           created: game.created_at,
           'last-modified': game.updated_at,
-          description: `<a href="https://www.espn.com.br${game.link}">Ver detalhes</a>`,
+          description: `<a href="${game.link}">Ver detalhes</a>`,
           status: 'CONFIRMED',
           transp: 'OPAQUE',
           sequence: 0
