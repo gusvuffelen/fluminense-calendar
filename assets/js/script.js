@@ -264,8 +264,7 @@ function toISOString(date, hour = 0) {
 }
 
 function getTeamLabel(team, score) {
-  const attrTitle =
-    document.body.clientWidth < 800 ? 'abbrev' : 'shortDisplayName';
+  const attrTitle = document.body.clientWidth < 800 ? 'abbrev' : 'name';
   const labelScore = score ? `<td style="padding-top:8px">(${score})</td>` : '';
   const labelName =
     document.body.clientWidth < 555 && labelScore
@@ -287,8 +286,7 @@ function getTeamLabel(team, score) {
 }
 
 function getTitle(game) {
-  const attrTitle =
-    document.body.clientWidth < 800 ? 'abbrev' : 'shortDisplayName';
+  const attrTitle = document.body.clientWidth < 800 ? 'abbrev' : 'name';
   const home = `${getTeamLabel(
     game.home,
     game.completed ? game.home.score.toString() : ''
