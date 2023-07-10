@@ -25,6 +25,8 @@
         height: 100%;
         margin: 0;
         padding: 0;
+        border-color: #736b5e;
+        color: #e8e6e3;
       }
 
       body {
@@ -39,7 +41,7 @@
       header,
       main,
       footer {
-        padding: 10px 50px 0;
+        padding: 5px 50px 0;
       }
 
       .flex-header {
@@ -60,10 +62,10 @@
       }
 
       .title {
-        font-size: 18px;
+        font-size: 14px;
         color: #c7bcc0;
         position: absolute;
-        margin: -25px 0 0 83px;
+        margin: -31px 0 0 75px;
         font-family: system-ui;
         text-shadow: 0 0 1px #5e5e5e;
         filter: blur(0.5px);
@@ -71,7 +73,7 @@
       }
 
       .legend {
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: rgba(24, 26, 27, 0.9);
         margin: 0 50px 0 50px;
         border-radius: 7px;
         padding: 5px;
@@ -79,6 +81,20 @@
 
       .legend-img {
         width: 50px;
+      }
+
+      .logo img {
+        box-shadow: 0 0 15px #111;
+        background-color: rgba(0, 0, 0, 0.4);
+        border-radius: 6px;
+        padding: 10px 10px;
+      }
+
+      .toggle-members img {
+        box-shadow: 0 0 15px #111;
+        background-color: rgba(0, 0, 0, 0.4);
+        border-radius: 6px;
+        padding: 7px 40px;
       }
 
       #members,
@@ -214,11 +230,63 @@
         color: white;
       }
 
+      .fc-toolbar.fc-header-toolbar {
+        margin-bottom: 5px;
+      }
+
+      .fc-view {
+        background-color: rgba(24, 26, 27, 0.8) !important;
+      }
+
+      .fc-unthemed .fc-content,
+      .fc-unthemed .fc-divider,
+      .fc-unthemed .fc-list-heading td,
+      .fc-unthemed .fc-list-view,
+      .fc-unthemed .fc-popover,
+      .fc-unthemed .fc-row,
+      .fc-unthemed tbody,
+      .fc-unthemed td,
+      .fc-unthemed th,
+      .fc-unthemed thead {
+        border-color: rgb(115, 107, 95) !important;
+      }
+
+      .fc-title tbody,
+      .fc-title td,
+      .fc-title th,
+      .fc-title thead {
+        border: none !important;
+      }
+
       .fc-center h2 {
-        background-color: white;
-        color: black;
-        padding: 14px;
+        background-color: rgb(24, 26, 27);
+        color: rgb(232, 230, 227);
+        padding: 7px 14px;
         border-radius: 7px;
+      }
+
+      .fc-state-active,
+      .fc-state-disabled,
+      .fc-state-down,
+      .fc-state-hover {
+        color: rgb(200, 195, 188);
+        background-color: rgb(38, 41, 43);
+      }
+
+      .fc-state-default {
+        background-color: rgb(30, 32, 33);
+        background-image: linear-gradient(rgb(24, 26, 27), rgb(38, 41, 43));
+        border-color: rgba(140, 130, 115, 0.1) rgba(140, 130, 115, 0.1)
+          rgba(140, 130, 115, 0.25);
+        color: rgb(200, 195, 188);
+        text-shadow: rgba(24, 26, 27, 0.75) 0px 1px 1px;
+        box-shadow: rgba(24, 26, 27, 0.2) 0px 1px 0px inset,
+          rgba(0, 0, 0, 0.05) 0px 1px 2px;
+      }
+
+      .fc-prev-button,
+      .fc-next-button {
+        width: 3em !important;
       }
 
       .fc-content {
@@ -239,7 +307,7 @@
 
       .fc button {
         width: 6em;
-        height: 4em;
+        height: 2.7em;
         touch-action: manipulation;
       }
 
@@ -285,9 +353,18 @@
       }
 
       @media only screen and (max-width: 800px) {
+        .fc-content {
+          padding: 2px;
+        }
+
         .fc button {
           width: 3.5em;
           height: 2.5em;
+        }
+
+        .fc-prev-button,
+        .fc-next-button {
+          width: 1.7em !important;
         }
 
         .fc-center h2 {
@@ -299,8 +376,8 @@
   <body>
     <header>
       <div class="flex-header">
-        <div>
-          <img width="230" src="assets/img/flu-assinatura-full.png" />
+        <div class="logo">
+          <img width="180" src="assets/img/flu-assinatura-full.png" />
           <div class="title">CALENDAR</div>
         </div>
         <div>
@@ -320,7 +397,7 @@
             class="toggle-members"
             href="javascript:void(0)"
             onclick="toggleMembers()"
-            ><img width="150" src="assets/img/logo-sociofutebol.png"
+            ><img width="120" src="assets/img/logo-sociofutebol.png"
           /></a>
         </div>
       </div>
@@ -357,39 +434,7 @@
         <div class="exit" onclick="togglePlayers()"></div>
       </div>
       <div class="legend-banner" onclick="toggleLegends()">
-        <table align="center">
-          <tr>
-            <td width="50" align="center" style="background-color: #2c2d7c">
-              <img width="50" src="assets/img/logo-brasileirao.png" />
-            </td>
-
-            <td>Campeonato Brasileiro</td>
-          </tr>
-          <tr>
-            <td width="50" align="center" style="background-color: #e1b557">
-              <img width="50" src="assets/img/logo-libertadores.png" />
-            </td>
-            <td>CONMEBOL Libertadores</td>
-          </tr>
-          <tr>
-            <td width="50" align="center" style="background-color: #285e39">
-              <img width="50" src="assets/img/logo-copa-do-brasil.png" />
-            </td>
-            <td>Copa do Brasil</td>
-          </tr>
-          <tr>
-            <td width="50" align="center" style="background-color: #25b8b4">
-              <img width="50" src="assets/img/logo-carioca.png" />
-            </td>
-            <td>Campeonato Carioca</td>
-          </tr>
-          <tr>
-            <td width="50" align="center" style="background-color: #6a6a6a">
-              <img width="50" src="assets/img/logo-sul-americana.png" />
-            </td>
-            <td>CONMEBOL Sudamericana</td>
-          </tr>
-        </table>
+        <table align="center"></table>
       </div>
     </footer>
   </body>

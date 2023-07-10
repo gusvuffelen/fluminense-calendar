@@ -142,6 +142,14 @@ $(document).ready(async function () {
               sequence: 0
             }))
           );
+
+          const rows = Array.from(document.querySelectorAll('.fc-row'));
+          const scrollers = Array.from(
+            document.querySelectorAll('.fc-scroller')
+          );
+          [...rows, ...scrollers].forEach(elem =>
+            elem.style.removeProperty('height')
+          );
         }
       );
     }
@@ -151,9 +159,11 @@ $(document).ready(async function () {
     'https://us-east-1.aws.data.mongodb-api.com/app/flucalendar-noygg/endpoint/getTournaments',
     res => {
       const json = JSON.parse(res);
+      const table = document.querySelector('div.legend-banner table');
       const elems = json.data.map(t => {
         const td1 = document.createElement('td');
         const td2 = document.createElement('td');
+        const tr = document.createElement('tr');
 
         td1.setAttribute('width', '50');
         td1.setAttribute('align', 'center');
@@ -163,6 +173,13 @@ $(document).ready(async function () {
 
         td2.className = 'legend-lable';
         td2.innerText = t.name;
+
+        tr.style.setProperty('background-color', 'rgb(24, 26, 27)');
+        tr.innerHTML = `${td1.outerHTML.replace(
+          'class="legend-img"',
+          'width="50"'
+        )}${td2.outerHTML.replace('class="legend-lable"', '')}`;
+        table.appendChild(tr);
 
         return [td1, td2];
       });
@@ -264,6 +281,8 @@ function getTitle(event) {
     } else if (event.away._id === 1961) {
       titleEvent = event.away.score > event.home.score ? '🟢' : '🔴';
     }
+
+    titleEvent = `<td style="font-size:8px;width:13px;line-height:15px;text-align:center">${titleEvent}</td>`;
   }
 
   const date = new Date(event.date);
@@ -274,7 +293,7 @@ function getTitle(event) {
   const home = getTeamLabel(event.home);
   const away = getTeamLabel(event.away);
 
-  titleEvent = `${titleEvent}${hours}:${minutes}h`;
+  titleEvent = `<table><tr>${titleEvent}<td>${hours}:${minutes}h</td></tr></table>`;
 
   return `<div style="background-color:${c1};color:${c2}">${titleEvent}${home}${away}</div>`;
 }
