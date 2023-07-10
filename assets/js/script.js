@@ -21,15 +21,15 @@ const tournaments = {
 
 $(document).ready(async function () {
   $('#calendar').fullCalendar({
-    navLinks: true,
+    navLinks: false,
     editable: false,
     minTime: '7:30:00',
     maxTime: '21:30:00',
     contentHeight: 550,
     header: {
-      left: 'prev,next today',
+      left: 'prev,next',
       center: 'title',
-      right: 'month'
+      right: 'today'
     },
     eventClick: function (event) {
       const url = event.description?.match(/(https[^"]+)/);
@@ -110,38 +110,67 @@ $(document).ready(async function () {
       'Out',
       'Nov',
       'Dez'
-    ]
+    ],
+    viewRender: event => {
+      const year = event.intervalStart.year();
+      const month = (event.intervalStart.month() + 1)
+        .toString()
+        .padStart(2, '0');
+
+      $.get(
+        `https://us-east-1.aws.data.mongodb-api.com/app/flucalendar-noygg/endpoint/getEventsByMonth?year=${year}&month=${month}`,
+        res => {
+          const json = JSON.parse(res);
+
+          $('#calendar').fullCalendar('removeEventSources');
+          $('#calendar').fullCalendar(
+            'addEventSource',
+            json.data.map(event => ({
+              uid: event._id,
+              title: getTitle(event),
+              color: event.tournament.secondaryColorHex,
+              start: event.date,
+              end: event.date,
+              completed: event.status === 'finished',
+              hasTime: event.status === 'finished',
+              dtstamp: event.date,
+              created: event.date,
+              'last-modified': event.date,
+              description: `<a href="https://www.sofascore.com/pt/internacional-fluminense/${event.customId}#${event._id}">Ver detalhes</a>`,
+              status: 'CONFIRMED',
+              transp: 'OPAQUE',
+              sequence: 0
+            }))
+          );
+        }
+      );
+    }
   });
 
   $.get(
-    'https://us-east-1.aws.data.mongodb-api.com/app/flu-xtcyx/endpoint/getGames',
+    'https://us-east-1.aws.data.mongodb-api.com/app/flucalendar-noygg/endpoint/getTournaments',
     res => {
-      const events = res.map(game => {
-        const uid = game._id;
-        const color = tournaments[game.league].color;
-        const start = toISOString(new Date(game.date), -3);
-        const end = toISOString(new Date(game.date), -1);
-        const title = getTitle(game);
+      const json = JSON.parse(res);
+      const elems = json.data.map(t => {
+        const td1 = document.createElement('td');
+        const td2 = document.createElement('td');
 
-        return {
-          uid,
-          color,
-          title,
-          start,
-          end,
-          completed: game.completed,
-          hasTime: game.hasTime,
-          dtstamp: game.updated_at,
-          created: game.created_at,
-          'last-modified': game.updated_at,
-          description: `<a href="${game.link}">Ver detalhes</a>`,
-          status: 'CONFIRMED',
-          transp: 'OPAQUE',
-          sequence: 0
-        };
+        td1.setAttribute('width', '50');
+        td1.setAttribute('align', 'center');
+        td1.style.setProperty('background-color', t.primaryColorHex);
+        td1.style.setProperty('border', `5px solid ${t.secondaryColorHex}`);
+        td1.innerHTML = `<img class="legend-img" src="https://api.sofascore.app/api/v1/unique-tournament/${t._id}/image" />`;
+
+        td2.className = 'legend-lable';
+        td2.innerText = t.name;
+
+        return [td1, td2];
       });
 
-      $('#calendar').fullCalendar('addEventSource', events);
+      const tr = document.querySelector('table.legend tr');
+      elems.flat().forEach(elem => {
+        tr.appendChild(elem);
+      });
     }
   );
 
@@ -224,6 +253,53 @@ $(document).ready(async function () {
   );
 });
 
+function getTitle(event) {
+  let titleEvent = '';
+
+  if ('score' in event.home && 'score' in event.away) {
+    if (event.home.score === event.away.score) {
+      titleEvent = '🔘';
+    } else if (event.home._id === 1961) {
+      titleEvent = event.home.score > event.away.score ? '🟢' : '🔴';
+    } else if (event.away._id === 1961) {
+      titleEvent = event.away.score > event.home.score ? '🟢' : '🔴';
+    }
+  }
+
+  const date = new Date(event.date);
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const c1 = event.tournament.primaryColorHex;
+  const c2 = event.tournament.secondaryColorHex;
+  const home = getTeamLabel(event.home);
+  const away = getTeamLabel(event.away);
+
+  titleEvent = `${titleEvent}${hours}:${minutes}h`;
+
+  return `<div style="background-color:${c1};color:${c2}">${titleEvent}${home}${away}</div>`;
+}
+
+function getTeamLabel(team) {
+  const attrTitle = document.body.clientWidth < 800 ? 'abbrev' : 'name';
+  const labelScore =
+    'score' in team ? `<td style="padding-top:8px">(${team.score})</td>` : '';
+  const labelName =
+    document.body.clientWidth < 555 && labelScore
+      ? team[attrTitle].charAt(0)
+      : team[attrTitle];
+
+  return `
+    <table style="width:auto;line-height:1px;">
+      <tr>
+        <td><img height="15" src="https://api.sofascore.app/api/v1/team/${team._id}/image/small" onerror="this.src='https://secure.espncdn.com/combiner/i?img=/i/teamlogos/default-team-logo-500.png&h=40&w=40'"/>
+        </td>
+        <td style="padding-top:8px">${labelName}</td>
+        ${labelScore}
+      </tr>
+    </table>
+  `;
+}
+
 function playerPrev(e) {
   const players = Array.from(document.querySelectorAll('#players .player'));
   const playersMap = players.reduce(
@@ -261,52 +337,6 @@ function toISOString(date, hour = 0) {
   newDate.setHours(newDate.getHours() + hour);
 
   return newDate.toISOString().replace(/\.[0-9]{3}Z/, 'Z');
-}
-
-function getTeamLabel(team, score) {
-  const attrTitle = document.body.clientWidth < 800 ? 'abbrev' : 'name';
-  const labelScore = score ? `<td style="padding-top:8px">(${score})</td>` : '';
-  const labelName =
-    document.body.clientWidth < 555 && labelScore
-      ? team[attrTitle].charAt(0)
-      : team[attrTitle];
-
-  return `
-    <table style="width:auto;line-height:1px;">
-      <tr>
-        <td><img height="15" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/${
-          team.id || team._id
-        }.png&scale=crop&cquality=40&location=origin&w=40&h=40"/>
-        </td>
-        <td style="padding-top:8px">${labelName}</td>
-        ${labelScore}
-      </tr>
-    </table>
-  `;
-}
-
-function getTitle(game) {
-  const attrTitle = document.body.clientWidth < 800 ? 'abbrev' : 'name';
-  const home = `${getTeamLabel(
-    game.home,
-    game.completed ? game.home.score.toString() : ''
-  )}`;
-  const visitor = `${getTeamLabel(
-    game.visitor,
-    game.completed ? game.visitor.score.toString() : ''
-  )}`;
-  let result = '';
-
-  if (game.completed) {
-    const flu = game.home.id === '3445' ? game.home : game.visitor;
-    const rival = game.home.id === '3445' ? game.visitor : game.home;
-
-    result = `${
-      flu.score > rival.score ? '🟢' : flu.score < rival.score ? '🔴' : '🔘'
-    }<br>`;
-  }
-
-  return `${result}${home}${visitor}`;
 }
 
 function toggleLegends() {
