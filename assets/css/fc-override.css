@@ -1,0 +1,188 @@
+.fc-center {
+  color: white;
+}
+
+.fc-center h2 {
+  font-size: 1.27em;
+}
+
+.fc-toolbar.fc-header-toolbar {
+  margin-bottom: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.fc-toolbar.fc-header-toolbar .fc-left {
+  float: none;
+  display: flex;
+  order: 1;
+}
+
+.fc-toolbar.fc-header-toolbar .fc-center {
+  float: none;
+  display: flex;
+  order: 2;
+  align-items: center;
+}
+
+.fc-toolbar.fc-header-toolbar .fc-right {
+  float: none;
+  display: flex;
+  order: 3;
+  align-items: center;
+}
+
+.fc-toolbar.fc-header-toolbar .fc-clear {
+  display: none;
+}
+
+.fc-toolbar.fc-header-toolbar .fc-left div {
+  display: flex;
+  align-items: center;
+}
+
+.fc-toolbar.fc-header-toolbar .fc-center h2 {
+  max-height: 33%;
+}
+
+.fc-view {
+  background-color: rgba(24, 26, 27, 0.8) !important;
+}
+
+.fc-unthemed .fc-content,
+.fc-unthemed .fc-divider,
+.fc-unthemed .fc-list-heading td,
+.fc-unthemed .fc-list-view,
+.fc-unthemed .fc-popover,
+.fc-unthemed .fc-row,
+.fc-unthemed tbody,
+.fc-unthemed td,
+.fc-unthemed th,
+.fc-unthemed thead {
+  border-color: rgb(115, 107, 95) !important;
+}
+
+.fc-title tbody,
+.fc-title td,
+.fc-title th,
+.fc-title thead {
+  border: none !important;
+}
+
+.fc-center h2 {
+  background-color: rgb(24, 26, 27);
+  color: rgb(232, 230, 227);
+  padding: 7px 14px;
+  border-radius: 7px;
+}
+
+.fc-state-active,
+.fc-state-disabled,
+.fc-state-down,
+.fc-state-hover {
+  color: rgb(200, 195, 188);
+  background-color: rgb(38, 41, 43);
+}
+
+.fc-state-default {
+  background-color: rgb(30, 32, 33);
+  background-image: linear-gradient(rgb(24, 26, 27), rgb(38, 41, 43));
+  border-color: rgba(140, 130, 115, 0.1) rgba(140, 130, 115, 0.1)
+    rgba(140, 130, 115, 0.25);
+  color: rgb(200, 195, 188);
+  text-shadow: rgba(24, 26, 27, 0.75) 0px 1px 1px;
+  box-shadow: rgba(24, 26, 27, 0.2) 0px 1px 0px inset,
+    rgba(0, 0, 0, 0.05) 0px 1px 2px;
+}
+
+.fc-prev-button,
+.fc-next-button {
+  width: 3em !important;
+}
+
+.fc-content {
+  padding: 5px;
+}
+
+.fc-day-grid-event .fc-content {
+  cursor: pointer;
+}
+
+tr:first-child > td > .fc-day-grid-event {
+  /* margin-top: 28px; */
+}
+
+.fc-content > .fc-time {
+  display: block;
+}
+
+.fc button {
+  width: 6em;
+  height: 2.7em;
+  touch-action: manipulation;
+}
+
+.fc-view {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.fc-unthemed .fc-content,
+.fc-unthemed .fc-divider,
+.fc-unthemed .fc-list-heading td,
+.fc-unthemed .fc-list-view,
+.fc-unthemed .fc-popover,
+.fc-unthemed .fc-row,
+.fc-unthemed tbody,
+.fc-unthemed td,
+.fc-unthemed th,
+.fc-unthemed thead {
+  border-color: #4d4a4a;
+}
+
+.fc-unthemed td.fc-today {
+  background: rgb(1, 103, 57);
+  background: linear-gradient(
+    0deg,
+    rgba(1, 103, 57, 0.5) 0%,
+    rgba(1, 103, 57, 0.5) 45%,
+    rgba(255, 255, 255, 0.5) 46%,
+    rgba(255, 255, 255, 0.5) 54%,
+    rgba(140, 24, 38, 0.5) 55%
+  );
+}
+
+a.fc-day-number {
+  position: absolute;
+}
+
+.fc-unthemed td.fc-today a.fc-day-number {
+  background-color: #8c1826;
+  color: white;
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 4px;
+}
+
+@media only screen and (max-width: 800px) {
+  .fc-toolbar.fc-header-toolbar .fc-center h2 {
+    max-height: initial;
+  }
+
+  .fc-content {
+    padding: 2px;
+  }
+
+  .fc button {
+    width: 3.5em;
+    height: 2.5em;
+  }
+
+  .fc-prev-button,
+  .fc-next-button {
+    width: 1.7em !important;
+  }
+
+  .fc-center h2 {
+    padding: 7px;
+  }
+}
