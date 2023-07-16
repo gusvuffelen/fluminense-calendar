@@ -9,10 +9,10 @@ body {
 }
 
 body {
-  background-image: url(https://gusvuffelen.github.io/fluminense-calendar/assets/img/wallpaper-flu.png);
+  background-image: url(../img/wallpaper-flu-dourado.png);
   background-size: cover;
   background-position: center;
-  background-color: #6e182c;
+  background-color: #2a070d; /*#6e182c*/
   font-family: 'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
   font-size: 14px;
 }
@@ -21,23 +21,6 @@ header,
 main,
 footer {
   padding: 5px 50px 0;
-}
-
-.flex-footer {
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-}
-
-.title {
-  font-size: 14px;
-  color: #c7bcc0;
-  position: absolute;
-  margin: -31px 0 0 75px;
-  font-family: system-ui;
-  text-shadow: 0 0 1px #5e5e5e;
-  filter: blur(0.5px);
-  -webkit-filter: blur(0.5px);
 }
 
 .control {
@@ -50,11 +33,64 @@ footer {
 }
 
 .logo {
+  display: flex;
+}
+
+.logo div:first-child img {
   height: 60px;
-  box-shadow: 0 0 15px #111;
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 6px;
-  padding: 5px 12px;
+}
+
+.logo div + div {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+  margin-left: 5px !important;
+}
+
+.logo div + div img {
+  height: 32px;
+}
+
+.title {
+  font-size: 14px;
+  font-family: system-ui;
+  font-weight: 300;
+  margin-left: 2px;
+  margin-top: -2px;
+  background: -webkit-linear-gradient(
+    #fffeff,
+    #fffeff,
+    #fffeff,
+    #fffeff,
+    #fffeff,
+    #fffeff,
+    #ca9f60,
+    #ac7e47,
+    #ed9c33,
+    #cb7b2a,
+    #854819,
+    #5f320e,
+    #411f06,
+    #2a0a02,
+    #1e0202
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /*
+  #fffeff
+  #fefdd4
+  #efc78b
+  #ca9f60
+  #ac7e47
+  #ed9c33
+  #cb7b2a
+  #854819
+  #5f320e
+  #411f06
+  #2a0a02
+  #1e0202
+  */
 }
 
 .member-bg,
@@ -78,6 +114,20 @@ footer {
   z-index: 4;
 }
 
+.golden {
+  border: none;
+  border-radius: 7px;
+  width: auto !important;
+  height: auto !important;
+  color: #fffeff;
+  text-shadow: 0 0 3px #1e0202;
+  background-color: #db924b;
+  padding: 6px 10px !important;
+  font-size: 14px !important;
+  font-family: system-ui;
+  font-weight: 300;
+}
+
 @media only screen and (max-width: 700px) {
   header {
     display: none;
@@ -88,8 +138,24 @@ footer {
     padding: 5px 5px 0;
   }
 
-  .logo {
-    height: 29px;
-    padding: 3px 5px;
+  .logo > div {
+    height: 38px;
+  }
+
+  .logo div:first-child img {
+    height: 40px;
+  }
+
+  .logo div + div img {
+    height: 25px;
+  }
+
+  .title {
+    font-size: 10px;
+  }
+
+  .golden {
+    font-size: 12px !important;
+    padding: 5px 5px !important;
   }
 }
