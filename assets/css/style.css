@@ -28,7 +28,7 @@ footer {
   display: flex;
 }
 
-.control div + div {
+.control > div + div {
   margin-left: 10px;
 }
 
@@ -36,11 +36,11 @@ footer {
   display: flex;
 }
 
-.logo div:first-child img {
+.logo > div:first-child img {
   height: 60px;
 }
 
-.logo div + div {
+.logo > div + div {
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -48,16 +48,15 @@ footer {
   margin-left: 5px !important;
 }
 
-.logo div + div img {
+.logo > div + div img {
   height: 32px;
 }
 
-.title {
+.title,
+.subtitle {
   font-size: 14px;
   font-family: system-ui;
-  font-weight: 300;
-  margin-left: 2px;
-  margin-top: -2px;
+  text-transform: uppercase;
   background: -webkit-linear-gradient(
     #fffeff,
     #fffeff,
@@ -91,6 +90,16 @@ footer {
   #2a0a02
   #1e0202
   */
+}
+
+.title {
+  font-weight: 700;
+  transform: scale(1.2, 1);
+  width: 109px;
+}
+
+.subtitle {
+  font-weight: 300;
 }
 
 .member-bg,
@@ -151,6 +160,11 @@ footer {
   }
 
   .title {
+    width: 81px;
+  }
+
+  .title,
+  .subtitle {
     font-size: 10px;
   }
 

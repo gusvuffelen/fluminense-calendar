@@ -20,4 +20,6 @@ $(document).ready(async function () {
 
   calendar.insertBefore(control, viewContainer);
   toolbar.appendChild(logo);
+
+  loadYouTubeIframeAPI();
 });

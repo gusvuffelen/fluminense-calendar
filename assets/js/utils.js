@@ -276,3 +276,39 @@ function toggleMembers() {
     members.style.zIndex = '4';
   }
 }
+
+let isYouTubeIframeAPI = false;
+
+function onYouTubeIframeAPIReady() {
+  isYouTubeIframeAPI = true;
+}
+
+function loadYouTubeIframeAPI() {
+  var tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
+function loadVideo() {
+  let done = false;
+  const player = new YT.Player('player', {
+    height: '360',
+    width: '640',
+    videoId: 'M7lc1UVf-VE',
+    events: {
+      onReady: function (event) {
+        event.target.playVideo();
+      },
+      onStateChange: function (event) {
+        console.log(event);
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          setTimeout(function () {
+            player.stopVideo();
+          }, 6000);
+          done = true;
+        }
+      }
+    }
+  });
+}
