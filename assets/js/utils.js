@@ -254,61 +254,101 @@ function toggleMembers() {
 
   if (members.style.display === 'block') {
     members.style.removeProperty('display');
-    members.style.removeProperty('position');
-    members.style.removeProperty('top');
-    members.style.removeProperty('left');
-    members.style.removeProperty('background-color');
-    members.style.removeProperty('max-width');
-    members.style.removeProperty('width');
-    members.style.removeProperty('height');
-    members.style.removeProperty('padding-top');
-    members.style.removeProperty('z-index');
   } else {
     members.style.display = 'block';
-    members.style.position = 'fixed';
-    members.style.top = '0';
-    members.style.left = '0';
-    members.style.backgroundColor = 'rgba(0,0,0,0.7)';
-    members.style.maxWidth = '100%';
-    members.style.width = '100%';
-    members.style.height = '100%';
-    members.style.paddingTop = '80px';
-    members.style.zIndex = '4';
   }
 }
 
-let isYouTubeIframeAPI = false;
+/* VIDEOS */
 
+const videoManager = {
+  isOpened: false,
+  isYouTubeIframeAPI: false,
+  url: 'https://us-east-1.aws.data.mongodb-api.com/app/flucalendar-noygg/endpoint/getChannelVideos',
+  videosQueue: [],
+  currentVideo: null,
+  player: null,
+  countPlayed: 0
+};
+
+// Function called by Youtube Iframe
 function onYouTubeIframeAPIReady() {
-  isYouTubeIframeAPI = true;
+  videoManager.isYouTubeIframeAPI = true;
 }
 
 function loadYouTubeIframeAPI() {
-  var tag = document.createElement('script');
+  const tag = document.createElement('script');
   tag.src = 'https://www.youtube.com/iframe_api';
-  var firstScriptTag = document.getElementsByTagName('script')[0];
+  const firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 }
 
-function loadVideo() {
-  let done = false;
-  const player = new YT.Player('player', {
-    height: '360',
-    width: '640',
-    videoId: 'M7lc1UVf-VE',
-    events: {
-      onReady: function (event) {
-        event.target.playVideo();
-      },
-      onStateChange: function (event) {
-        console.log(event);
-        if (event.data == YT.PlayerState.PLAYING && !done) {
-          setTimeout(function () {
-            player.stopVideo();
-          }, 6000);
-          done = true;
+function reqVideos() {
+  return new Promise(resolve => {
+    $.get(videoManager.url, res => {
+      resolve(JSON.parse(res));
+    });
+  });
+}
+
+function checkPlayer() {
+  return new Promise(async resolve => {
+    if (!videoManager.player) {
+      videoManager.player = new YT.Player('player', {
+        width: '80%',
+        height: '80%'
+      });
+      videoManager.player.addEventListener('onStateChange', event => {
+        if (event.data === YT.PlayerState.ENDED) {
+          videoManager.countPlayed++;
+          nextVideo();
         }
-      }
+      });
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      resolve();
+    } else {
+      resolve();
     }
   });
+}
+
+async function checkVideosQueue() {
+  if (!videoManager.videosQueue.length) {
+    const req = await reqVideos();
+    req.data.forEach(video => videoManager.videosQueue.push(video));
+  }
+}
+
+async function nextVideo() {
+  await checkVideosQueue();
+  videoManager.currentVideo = videoManager.videosQueue.shift();
+  videoManager.player.loadVideoById(videoManager.currentVideo._id);
+  setTimeout(() => {
+    if (videoManager.isOpened && !videoManager.player.getCurrentTime()) {
+      nextVideo();
+    }
+  }, 3000);
+}
+
+async function play() {
+  await checkPlayer();
+  nextVideo();
+}
+
+async function stop() {
+  videoManager.player.stopVideo();
+}
+
+async function toggleVideos() {
+  const videos = document.querySelector('.videos-bg');
+
+  if (videos.style.display === 'flex') {
+    videos.style.removeProperty('display');
+    videoManager.isOpened = false;
+    stop();
+  } else {
+    videos.style.display = 'flex';
+    videoManager.isOpened = true;
+    play();
+  }
 }

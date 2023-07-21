@@ -102,6 +102,7 @@ footer {
   font-weight: 300;
 }
 
+.videos-bg,
 .member-bg,
 .legend-bg {
   display: none;
@@ -111,6 +112,8 @@ footer {
   margin-right: auto !important;
 }
 
+.videos-bg,
+.member-bg,
 .legend-bg {
   position: fixed;
   top: 0;
@@ -121,6 +124,12 @@ footer {
   height: 100%;
   padding-top: 40px;
   z-index: 4;
+}
+
+.videos-bg {
+  justify-content: center;
+  align-items: center;
+  padding-top: 0;
 }
 
 .golden {
