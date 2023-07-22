@@ -284,7 +284,7 @@ function loadYouTubeIframeAPI() {
   const firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
   videoManager.channelInfoElem = document.querySelector('.channel-info');
-  videoManager.videoInfoElem = document.querySelector('.video-info');
+  videoManager.videoInfoElem = document.querySelector('.video-title');
 }
 
 function reqVideos() {
