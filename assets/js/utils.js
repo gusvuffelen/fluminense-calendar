@@ -268,7 +268,9 @@ const videoManager = {
   videosQueue: [],
   currentVideo: null,
   player: null,
-  countPlayed: 0
+  countPlayed: 0,
+  channelInfoElem: null,
+  videoInfoElem: null
 };
 
 // Function called by Youtube Iframe
@@ -281,6 +283,8 @@ function loadYouTubeIframeAPI() {
   tag.src = 'https://www.youtube.com/iframe_api';
   const firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  videoManager.channelInfoElem = document.querySelector('.channel-info');
+  videoManager.videoInfoElem = document.querySelector('.video-info');
 }
 
 function reqVideos() {
@@ -295,8 +299,8 @@ function checkPlayer() {
   return new Promise(async resolve => {
     if (!videoManager.player) {
       videoManager.player = new YT.Player('player', {
-        width: '80%',
-        height: '80%'
+        width: '70%',
+        height: '60%'
       });
       videoManager.player.addEventListener('onStateChange', event => {
         if (event.data === YT.PlayerState.ENDED) {
@@ -304,7 +308,12 @@ function checkPlayer() {
           nextVideo();
         }
       });
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      while (true) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        if (videoManager.player.loadVideoById) {
+          break;
+        }
+      }
       resolve();
     } else {
       resolve();
@@ -323,6 +332,26 @@ async function nextVideo() {
   await checkVideosQueue();
   videoManager.currentVideo = videoManager.videosQueue.shift();
   videoManager.player.loadVideoById(videoManager.currentVideo._id);
+  videoManager.channelInfoElem.innerHTML = `
+    <img class="channel-info-img" src="${
+      videoManager.currentVideo.channel.thumbnail
+    }" />
+    <div class="channel-info-txt">
+      <div class="channel-info-title">${
+        videoManager.currentVideo.channel.title
+      }</div>
+      <div class="channel-info-date">${new Date(
+        videoManager.currentVideo.publishedAt
+      ).toLocaleString('pt-BR', {
+        year: 'numeric',
+        month: 'long',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}</div>
+    </div>
+  `;
+  videoManager.videoInfoElem.innerText = videoManager.currentVideo.title;
   setTimeout(() => {
     if (videoManager.isOpened && !videoManager.player.getCurrentTime()) {
       nextVideo();

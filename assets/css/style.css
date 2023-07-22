@@ -129,7 +129,35 @@ footer {
 .videos-bg {
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   padding-top: 0;
+}
+
+.channel-info {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.channel-info-img {
+  width: 140px;
+}
+
+.channel-info-txt {
+  margin-left: 20px;
+}
+
+.channel-info-title {
+  font-size: 40px;
+}
+
+.channel-info-date {
+  font-size: 15px;
+}
+
+.video-info {
+  width: 70%;
+  font-size: 25px;
+  text-align: center;
 }
 
 .golden {
@@ -175,10 +203,31 @@ footer {
   .title,
   .subtitle {
     font-size: 10px;
+    line-height: 9px;
   }
 
   .golden {
     font-size: 12px !important;
     padding: 5px 5px !important;
+  }
+
+  .channel-info-img {
+    width: 50px;
+  }
+
+  .channel-info-title {
+    font-size: 20px;
+  }
+
+  .channel-info-date {
+    font-size: 10px;
+  }
+
+  .video-info {
+    font-size: 15px;
+  }
+
+  iframe#player {
+    width: 100% !important;
   }
 }
