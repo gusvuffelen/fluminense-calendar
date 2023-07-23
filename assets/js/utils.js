@@ -262,15 +262,19 @@ function toggleMembers() {
 /* VIDEOS */
 
 const videoManager = {
-  isOpened: false,
-  isYouTubeIframeAPI: false,
   url: 'https://us-east-1.aws.data.mongodb-api.com/app/flucalendar-noygg/endpoint/getChannelVideos',
   videosQueue: [],
+  livesQueue: [],
+  shortsQueue: [],
+  isOpened: false,
+  isYouTubeIframeAPI: false,
   currentVideo: null,
   player: null,
   countPlayed: 0,
   channelInfoElem: null,
-  videoInfoElem: null
+  videoInfoElem: null,
+  typeIndex: 0,
+  types: ['short', 'video', 'short', 'live']
 };
 
 // Function called by Youtube Iframe
@@ -287,9 +291,9 @@ function loadYouTubeIframeAPI() {
   videoManager.videoInfoElem = document.querySelector('.video-title');
 }
 
-function reqVideos() {
+function reqVideos(type) {
   return new Promise(resolve => {
-    $.get(videoManager.url, res => {
+    $.get(`${videoManager.url}?type=${type}`, res => {
       resolve(JSON.parse(res));
     });
   });
@@ -323,14 +327,41 @@ function checkPlayer() {
 
 async function checkVideosQueue() {
   if (!videoManager.videosQueue.length) {
-    const req = await reqVideos();
+    const req = await reqVideos('video');
     req.data.forEach(video => videoManager.videosQueue.push(video));
+  }
+
+  if (!videoManager.livesQueue.length) {
+    const req = await reqVideos('live');
+    req.data.forEach(live => videoManager.livesQueue.push(live));
+  }
+
+  if (!videoManager.shortsQueue.length) {
+    const req = await reqVideos('short');
+    req.data.forEach(short => videoManager.shortsQueue.push(short));
   }
 }
 
 async function nextVideo() {
   await checkVideosQueue();
-  videoManager.currentVideo = videoManager.videosQueue.shift();
+
+  if (!videoManager.types[videoManager.typeIndex]) {
+    videoManager.typeIndex = 0;
+  }
+
+  switch (videoManager.types[videoManager.typeIndex]) {
+    case 'video':
+      videoManager.currentVideo = videoManager.videosQueue.shift();
+      break;
+    case 'live':
+      videoManager.currentVideo = videoManager.livesQueue.shift();
+      break;
+    case 'short':
+      videoManager.currentVideo = videoManager.shortsQueue.shift();
+      break;
+  }
+
+  videoManager.typeIndex++;
   videoManager.player.loadVideoById(videoManager.currentVideo._id);
   videoManager.channelInfoElem.innerHTML = `
     <img class="channel-info-img" src="${
