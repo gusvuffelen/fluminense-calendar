@@ -259,16 +259,16 @@ function toggleMembers() {
   }
 }
 
-/* VIDEOS */
+/* PLAYER */
 
-const videoManager = {
+const playerManager = {
   url: 'https://us-east-1.aws.data.mongodb-api.com/app/flucalendar-noygg/endpoint/getChannelVideos',
   videosQueue: [],
   livesQueue: [],
   shortsQueue: [],
   isOpened: false,
   isYouTubeIframeAPI: false,
-  currentVideo: null,
+  currentItem: null,
   player: null,
   countPlayed: 0,
   channelInfoElem: null,
@@ -279,7 +279,7 @@ const videoManager = {
 
 // Function called by Youtube Iframe
 function onYouTubeIframeAPIReady() {
-  videoManager.isYouTubeIframeAPI = true;
+  playerManager.isYouTubeIframeAPI = true;
 }
 
 function loadYouTubeIframeAPI() {
@@ -287,13 +287,13 @@ function loadYouTubeIframeAPI() {
   tag.src = 'https://www.youtube.com/iframe_api';
   const firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-  videoManager.channelInfoElem = document.querySelector('.channel-info');
-  videoManager.videoInfoElem = document.querySelector('.video-title');
+  playerManager.channelInfoElem = document.querySelector('.channel-info');
+  playerManager.videoInfoElem = document.querySelector('.video-title');
 }
 
 function reqVideos(type) {
   return new Promise(resolve => {
-    $.get(`${videoManager.url}?type=${type}`, res => {
+    $.get(`${playerManager.url}?type=${type}`, res => {
       resolve(JSON.parse(res));
     });
   });
@@ -301,20 +301,20 @@ function reqVideos(type) {
 
 function checkPlayer() {
   return new Promise(async resolve => {
-    if (!videoManager.player) {
-      videoManager.player = new YT.Player('player', {
+    if (!playerManager.player) {
+      playerManager.player = new YT.Player('player', {
         width: '70%',
         height: '60%'
       });
-      videoManager.player.addEventListener('onStateChange', event => {
+      playerManager.player.addEventListener('onStateChange', event => {
         if (event.data === YT.PlayerState.ENDED) {
-          videoManager.countPlayed++;
+          playerManager.countPlayed++;
           nextVideo();
         }
       });
       while (true) {
         await new Promise(resolve => setTimeout(resolve, 1500));
-        if (videoManager.player.loadVideoById) {
+        if (playerManager.player.loadVideoById) {
           break;
         }
       }
@@ -326,53 +326,68 @@ function checkPlayer() {
 }
 
 async function checkVideosQueue() {
-  if (!videoManager.videosQueue.length) {
+  if (!playerManager.videosQueue.length) {
     const req = await reqVideos('video');
-    req.data.forEach(video => videoManager.videosQueue.push(video));
+    req.data.forEach(video => playerManager.videosQueue.push(video));
   }
 
-  if (!videoManager.livesQueue.length) {
+  if (!playerManager.livesQueue.length) {
     const req = await reqVideos('live');
-    req.data.forEach(live => videoManager.livesQueue.push(live));
+    req.data.forEach(live => playerManager.livesQueue.push(live));
   }
 
-  if (!videoManager.shortsQueue.length) {
+  if (!playerManager.shortsQueue.length) {
     const req = await reqVideos('short');
-    req.data.forEach(short => videoManager.shortsQueue.push(short));
+    req.data.forEach(short => playerManager.shortsQueue.push(short));
   }
+}
+
+function checkIsPlaying() {
+  setTimeout(() => {
+    if (playerManager.isOpened && !playerManager.player.getCurrentTime()) {
+      playerManager.player.mute();
+      playerManager.player.playVideo();
+
+      setTimeout(() => {
+        if (playerManager.isOpened && !playerManager.player.getCurrentTime()) {
+          nextVideo();
+        }
+      }, 3000);
+    }
+  }, 3000);
 }
 
 async function nextVideo() {
   await checkVideosQueue();
 
-  if (!videoManager.types[videoManager.typeIndex]) {
-    videoManager.typeIndex = 0;
+  if (!playerManager.types[playerManager.typeIndex]) {
+    playerManager.typeIndex = 0;
   }
 
-  switch (videoManager.types[videoManager.typeIndex]) {
+  switch (playerManager.types[playerManager.typeIndex]) {
     case 'video':
-      videoManager.currentVideo = videoManager.videosQueue.shift();
+      playerManager.currentItem = playerManager.videosQueue.shift();
       break;
     case 'live':
-      videoManager.currentVideo = videoManager.livesQueue.shift();
+      playerManager.currentItem = playerManager.livesQueue.shift();
       break;
     case 'short':
-      videoManager.currentVideo = videoManager.shortsQueue.shift();
+      playerManager.currentItem = playerManager.shortsQueue.shift();
       break;
   }
 
-  videoManager.typeIndex++;
-  videoManager.player.loadVideoById(videoManager.currentVideo._id);
-  videoManager.channelInfoElem.innerHTML = `
+  playerManager.typeIndex++;
+  playerManager.player.loadVideoById(playerManager.currentItem._id);
+  playerManager.channelInfoElem.innerHTML = `
     <img class="channel-info-img" src="${
-      videoManager.currentVideo.channel.thumbnail
+      playerManager.currentItem.channel.thumbnail
     }" />
     <div class="channel-info-txt">
       <div class="channel-info-title">${
-        videoManager.currentVideo.channel.title
+        playerManager.currentItem.channel.title
       }</div>
       <div class="channel-info-date">${new Date(
-        videoManager.currentVideo.publishedAt
+        playerManager.currentItem.publishedAt
       ).toLocaleString('pt-BR', {
         year: 'numeric',
         month: 'long',
@@ -382,12 +397,8 @@ async function nextVideo() {
       })}</div>
     </div>
   `;
-  videoManager.videoInfoElem.innerText = videoManager.currentVideo.title;
-  setTimeout(() => {
-    if (videoManager.isOpened && !videoManager.player.getCurrentTime()) {
-      nextVideo();
-    }
-  }, 3000);
+  playerManager.videoInfoElem.innerText = playerManager.currentItem.title;
+  checkIsPlaying();
 }
 
 async function play() {
@@ -396,7 +407,7 @@ async function play() {
 }
 
 async function stop() {
-  videoManager.player.stopVideo();
+  playerManager.player.stopVideo();
 }
 
 async function toggleVideos() {
@@ -404,11 +415,11 @@ async function toggleVideos() {
 
   if (videos.style.display === 'flex') {
     videos.style.removeProperty('display');
-    videoManager.isOpened = false;
+    playerManager.isOpened = false;
     stop();
   } else {
     videos.style.display = 'flex';
-    videoManager.isOpened = true;
+    playerManager.isOpened = true;
     play();
   }
 }
