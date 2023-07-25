@@ -375,39 +375,39 @@ async function checkVideosQueue() {
 
 function checkIsPlaying() {
   setTimeout(() => {
-    if (playerManager.isOpened && !playerManager.player.getCurrentTime()) {
+    if (
+      playerManager.isOpened &&
+      !playerManager.player.getCurrentTime() &&
+      playerManager.player.getPlayerState() === YT.PlayerState.UNSTARTED
+    ) {
       nextVideo();
     }
-  }, 5000);
+  }, 3000);
 }
 
 function plotHistory() {
-  Plotly.newPlot(
-    'channel-info-history-chart',
-    [
-      {
-        x: playerManager.histories[playerManager.currentItem.channel._id].map(
-          m => m.date
-        ),
-        y: playerManager.histories[playerManager.currentItem.channel._id].map(
-          m => m.subscriberCount
-        ),
-        type: 'scatter'
-      }
-    ],
-    {
-      width: document.body.clientWidth / 3,
-      height: 120,
-      margin: {
-        l: 40,
-        r: 20,
-        b: 20,
-        t: 20,
-        pad: 4
-      }
-    },
-    { displayModeBar: true }
-  );
+  const channel_id = playerManager.currentItem.channel._id;
+  const history = playerManager.histories[channel_id];
+  const x = history.map(m => m.date);
+  const y = history.map(m => m.subscriberCount);
+  const data = [{ x, y, type: 'scatter' }];
+  const options = { displayModeBar: false, scrollZoom: false };
+  const layout = {
+    showlegend: false,
+    height: 120,
+    yaxis: { tickformat: '.0f' },
+    margin: {
+      l: 70,
+      r: 0,
+      b: 20,
+      t: 0,
+      pad: 4
+    }
+  };
+
+  setTimeout(() => {
+    Plotly.newPlot('channel-info-history-chart', data, layout, options);
+  });
 }
 
 async function nextVideo() {
@@ -444,22 +444,25 @@ async function nextVideo() {
   playerManager.typeIndex++;
   playerManager.player.loadVideoById(playerManager.currentItem._id);
   playerManager.channelInfoElem.innerHTML = `
-    <img class="channel-info-img" src="${
-      playerManager.currentItem.channel.thumbnail
-    }" />
+    <div class="channel-info-img">
+      <img src="${playerManager.currentItem.channel.thumbnail}" />
+    </div>
     <div class="channel-info-txt">
       <div class="channel-info-title">${
         playerManager.currentItem.channel.title
       }</div>
-      <div class="channel-info-date">${new Date(
-        playerManager.currentItem.publishedAt
-      ).toLocaleString('pt-BR', {
-        year: 'numeric',
-        month: 'long',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      })}</div>
+      <div class="channel-info-date">
+        ${new Date(playerManager.currentItem.publishedAt).toLocaleString(
+          'pt-BR',
+          {
+            year: 'numeric',
+            month: 'long',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          }
+        )}
+      </div>
     </div>
     <div class="channel-info-history">
       <div class="channel-info-history-title">Seguidores:</div>
