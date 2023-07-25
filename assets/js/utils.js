@@ -274,7 +274,8 @@ const playerManager = {
   channelInfoElem: null,
   videoInfoElem: null,
   typeIndex: 0,
-  types: ['short', 'video', 'short', 'live']
+  types: ['short', 'video', 'short', 'live'],
+  histories: {}
 };
 
 // Function called by Youtube Iframe
@@ -296,6 +297,17 @@ function reqVideos(type) {
     $.get(`${playerManager.url}?type=${type}`, res => {
       resolve(JSON.parse(res));
     });
+  });
+}
+
+function reqHistory(channel_id) {
+  return new Promise(resolve => {
+    $.get(
+      `https://us-east-1.aws.data.mongodb-api.com/app/flucalendar-noygg/endpoint/getChannelHistory?channel_id=${channel_id}`,
+      res => {
+        resolve(JSON.parse(res));
+      }
+    );
   });
 }
 
@@ -369,6 +381,35 @@ function checkIsPlaying() {
   }, 5000);
 }
 
+function plotHistory() {
+  Plotly.newPlot(
+    'channel-info-history-chart',
+    [
+      {
+        x: playerManager.histories[playerManager.currentItem.channel._id].map(
+          m => m.date
+        ),
+        y: playerManager.histories[playerManager.currentItem.channel._id].map(
+          m => m.subscriberCount
+        ),
+        type: 'scatter'
+      }
+    ],
+    {
+      width: document.body.clientWidth / 3,
+      height: 120,
+      margin: {
+        l: 40,
+        r: 20,
+        b: 20,
+        t: 20,
+        pad: 4
+      }
+    },
+    { displayModeBar: true }
+  );
+}
+
 async function nextVideo() {
   await checkVideosQueue();
 
@@ -386,6 +427,18 @@ async function nextVideo() {
     case 'short':
       playerManager.currentItem = playerManager.shortsQueue.shift();
       break;
+  }
+
+  if (!playerManager.histories[playerManager.currentItem.channel._id]) {
+    reqHistory(playerManager.currentItem.channel._id).then(json => {
+      const channel_id = playerManager.currentItem.channel._id;
+
+      playerManager.histories[channel_id] = json.data;
+
+      plotHistory();
+    });
+  } else {
+    plotHistory();
   }
 
   playerManager.typeIndex++;
@@ -407,6 +460,10 @@ async function nextVideo() {
         hour: '2-digit',
         minute: '2-digit'
       })}</div>
+    </div>
+    <div class="channel-info-history">
+      <div class="channel-info-history-title">Seguidores:</div>
+      <div id="channel-info-history-chart"></div>
     </div>
   `;
   playerManager.videoInfoElem.innerText = playerManager.currentItem.title;
